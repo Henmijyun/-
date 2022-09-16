@@ -4,7 +4,7 @@
 #include <string>
 #include <list>
 #include <assert.h>
-
+#include <string.h>
 using namespace std;
 
 namespace bit
@@ -130,6 +130,12 @@ namespace bit
         const char* c_str() const
         {
             return _str; // 返回值自动强转为const char*
+        }
+        
+        void clear()
+        {
+            _str[0] = '\0';
+            _size = 0;
         }
 
         size_t size() const
@@ -260,7 +266,7 @@ namespace bit
         {
             assert(pos <= _size);
             size_t len = strlen(str);
-            if (_size = _capacity)
+            if (_size == _capacity)
             {
                 reserve(_capacity == 0 ? 4 : _capacity * 2);
             }
@@ -296,15 +302,90 @@ namespace bit
             }
 
         }
+        
 
-        size_t find(char ch, size_t pos = 0) const;
-        size_t find(const char* sub, size_t pos = 0) const;
-        bool operator>(const string& s) const;
-        bool operator==(const string& s) const;
-        bool operator>=(const string& s) const;
-        bool operator<=(const string& s) const;
-        bool operator<(const string& s) const;
-        bool operator!=(const string& s) const;
+        size_t find(char ch, size_t pos = 0) const // 查找字符，返回下标
+        {
+            assert(pos < _size);
+
+            for (size_t i = pos; i < _size; ++i)
+            {
+                if (ch == _str[i])
+                {
+                    return i;
+                }
+            }
+
+            return npos;
+        }
+
+        size_t find(const char* sub, size_t pos = 0) const // 查找字符串
+        {
+            assert(pos < _size);
+            assert(sub);
+            
+            // kmp / bm 算法都可以实现，bm更优
+            const char* ptr = strstr(_str + pos, sub); // strstr函数暴力查找
+            if (ptr == nullptr)
+            {
+                return npos; // 找不到
+            }
+            else
+            {
+                return ptr - _str; // 指针减指针 -> 下标
+            }
+        }
+
+        // 从字符串中 截取 部分字符串
+        string substr(size_t pos, size_t len = npos) const 
+        {
+            assert(pos < _size);
+
+            size_t realLen = len;
+            if (len == npos || (len + pos) > _size)
+            {
+                realLen = _size - pos; // 需要截取的字符个数
+            }
+
+            string sub;
+            for (size_t i = 0; i < realLen; ++i)
+            {
+                sub += _str[pos + i]; // 拷贝
+            }
+
+            return sub;
+        }
+
+        bool operator>(const string& s) const 
+        {
+            return strcmp(_str, s._str) > 0;
+        }
+
+        bool operator==(const string& s) const 
+        {
+            return strcmp(_str, s._str) == 0;
+        }
+
+        bool operator>=(const string& s) const 
+        {
+            return *this > s || *this == s;
+        }
+
+        bool operator<=(const string& s) const 
+        {
+            return !(*this > s);
+        }
+
+        bool operator<(const string& s) const 
+        {
+            return !(*this >= s);
+        }
+
+        bool operator!=(const string& s) const 
+        {
+            return !(*this == s);
+        }
+
     private:
         char* _str;
         size_t _size;
@@ -325,13 +406,14 @@ namespace bit
         return out;
     }
 
+    /* // 这个方法效率不够高
     istream& operator>>(istream& in, string& s)
     {
-        //  输入字符串很长，不断+=，频繁扩容，效率很低，大家可以想法优化一下 
+        //  如果输入字符串很长，不断+=，频繁扩容，效率很低，需要优化一下 
         char ch;
         //in >> ch; // 无法识别空格和回车
         ch = in.get();
-
+        s.reserve(128); // 可以预先把空间开好，但是如果用不上就浪费了
         while (ch != ' ' && ch != '\n')
         {
             s += ch;
@@ -340,7 +422,41 @@ namespace bit
 
         return in;
     }
+    */
+    
+    // 优化版
+    istream& operator>>(istream& in, string& s)
+    {
+        s.clear();
 
+        char ch;
+        ch = in.get(); // 能识别空格
+
+        const size_t N = 32;
+        char buff[N]; 
+        size_t i = 0;
+
+        while (ch != ' ' && ch != '\n')
+        {
+            buff[i++] = ch; // 把输入的字符先保存到数组
+            if (i == N-1)
+            {
+                buff[i] = '\0';
+                s += buff;  // 数组满了才把数据拷贝到对象里（减少拷贝的次数）
+                i = 0;
+            }
+
+            ch = in.get();
+        }
+        
+        if (i != 0) // 如果数组里还有数据，就拷贝到对象
+        {
+            buff[i] = '\0'; 
+            s += buff; 
+        }
+        
+        return in;
+    }
 
 
     void TestString1()
