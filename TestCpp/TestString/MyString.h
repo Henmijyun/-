@@ -7,7 +7,7 @@
 #include <string.h>
 using namespace std;
 
-namespace bit
+namespace skk
 {
     class string
     {

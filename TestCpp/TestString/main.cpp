@@ -4,8 +4,8 @@ int main()
 {
 	try
 	{
-		//bit::TestString1();
-		bit::TestString2();
+		//skk::TestString1();
+		skk::TestString2();
 	}
 	catch (const exception& e) // 抛异常处理
 	{
