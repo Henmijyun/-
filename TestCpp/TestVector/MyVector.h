@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <assert.h>
+#include <string.h>
 
 using namespace std;
 
@@ -45,14 +46,33 @@ namespace skk
 			, _end_of_storage(nullptr)
 		{}
 
+        vector(size_t n, const T& val = T()) // 用n个T类型的数据，进行构造，缺省值为T()
+			:_start(nullptr)
+			, _finish(nullptr)
+			, _end_of_storage(nullptr)
+        {
+            reserve(n); // 扩容
+            for (int i = 0; i < n; ++i)
+            {
+                push_back(val); // 插入n个T类型的数据
+            }
+        }
+
 		// v2(v1)
 		/*vector(const vector<T>& v) // 拷贝构造（传统深拷贝）
 		{
 			_start = new T[v.size()]; // v.capacity()也可以
-			memcpy(_start, v._start, sizeof(T) * v.size()); // 拷贝数据
-			_finish = _start + v.size();
+			// memcpy(_start, v._start, sizeof(T) * v.size()); // 拷贝数据
+			// memcpy()当遇到vector<vector<int>> val; 这种情况，只会深拷贝上面一层，
+            // 下面一层是浅拷贝，所以析构的时候会崩溃
+            //
+            for (size_t i = 0; i < v.size(); ++i)
+            {
+                _start[i] = v._start[i];
+            }
+            _finish = _start + v.size();
 			_end_of_storage = _start + v.size();
-		}*/
+		}*/ 
 
 		/*vector(const vector<T>& v)
 			:_start(nullptr)
@@ -89,7 +109,7 @@ namespace skk
 		}
 
 		// v2(v1)
-		vector(const vector<T>& v)
+		vector(const vector<T>& v) // 传参必须引用& 否则是无限递归
 			:_start(nullptr)
 			, _finish(nullptr)
 			, _end_of_storage(nullptr)
@@ -97,6 +117,13 @@ namespace skk
 			vector<T> tmp(v.begin(), v.end());
 			swap(tmp);
 		}
+        
+        // v2 = v1 
+        vector<T>& operator=(vector<T> v) // 传参时会深拷贝，直接对这个深拷贝进行交换则可
+        {
+            swap(v);
+            return *this;
+        }
 
 		~vector()
 		{
@@ -126,7 +153,7 @@ namespace skk
 			return _start[pos];
 		}
 
-		void reserve(size_t n)
+		void reserve(size_t n)  // 扩容
 		{
 			if (n > capacity())
 			{
@@ -134,8 +161,15 @@ namespace skk
 				T* tmp = new T[n];
 				if (_start) // 不为空就拷贝
 				{
-					memcpy(tmp, _start, sizeof(T) * sz);
-					delete[] _start;
+					//memcpy(tmp, _start, sizeof(T) * sz);
+					// 在vector<vector<int>> val;的情况下，上层的vector是深拷贝，
+                    // 而下层的vector是浅拷贝，所以会err
+
+                    for (size_t i = 0; i <  sz; ++i)
+                    {
+                        tmp[i] = _start[i];
+                    }
+                    delete[] _start;
 				}
 
 				_start = tmp;
@@ -143,6 +177,30 @@ namespace skk
 				_end_of_storage = _start + n;
 			}
 		}
+
+		void resize(size_t n, const T& val = T()) // 改变当前vector的大小为n
+        {
+            if (n > capacity())
+            {
+
+                reserve(n);
+            }
+
+            if (n > size())
+            {  
+                // 初始化填值
+                while (_finish < _start + n)
+                {
+                    *_finish = val;
+                    ++_finish;
+                }
+            }
+            else
+            {
+                //  删除数据
+                _finish = _start + n;
+            }
+        }
 
 		void push_back(const T& x)
 		{
@@ -205,6 +263,20 @@ namespace skk
 			// 缩容也会使当前迭代器失效
 			return pos;
 		}
+        
+        T& front() // 返回头位置的数据
+        {
+            assert(size() > 0);
+
+            return *_start;
+        }
+
+        T& back()  // 返回尾位置的数据
+        {
+            assert(size() > 0);
+
+            return *(_finish - 1);
+        }
 
 
 	private:
@@ -314,6 +386,46 @@ namespace skk
 		}
 		cout << endl;
 	}
+
+	void TestVector4()
+	{
+		vector<int> v;
+		v.push_back(1);
+		v.push_back(2);
+		v.push_back(3);
+		v.push_back(4);
+		v.push_back(5);
+		for (auto e : v)
+		{
+			cout << e << " ";
+		}
+		cout << endl;
+
+        string s("hello word");
+        vector<int> vs(s.begin(), s.end()); // 把s的内存区间进行构造
+
+		for (auto e : vs)
+		{
+			cout << e << " ";
+		}
+		cout << endl;
+
+        //vs = v; // 已经存在的两个对象，赋值拷贝
+        vector<int> copy = vs; // 等于copy(v); 拷贝构造 （copy本来不存在）
+        
+		for (auto e : copy)
+		{
+			cout << e << " ";
+		}
+		cout << endl;
+    }
+
+
+
+
+
+
+
 
 }
 
