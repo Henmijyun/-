@@ -163,8 +163,16 @@ namespace skk
         list(const list<T>& lt) // 拷贝构造
         {
             empty_init();
-            list<T> tmp(lt.begin(), lt.end());
+            list<T> tmp(lt.begin(), lt.end()); // 出了作用域，自动析构
             swap(tmp);
+
+        }
+        
+        // lt1 = lt3 
+        list<T>& operator=(list<T> lt) 
+        {
+            swap(lt);  // lt相当于lt3的深拷贝，对传值传参会拷贝构造，再进行交换
+            return *this;  // 交换后函数结束，lt自动析构 （两全其美）
         }
 
         ~list()
@@ -337,7 +345,8 @@ namespace skk
             cout << e << " ";
         }
         cout << endl;
-
+        
+        lt = copy;
         for (auto& e : lt)
         { 
             cout << e << " ";
