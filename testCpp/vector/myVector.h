@@ -52,6 +52,19 @@ namespace skk
 			, _end_of_storage(nullptr)
         {
             reserve(n); // 扩容
+            for (size_t i = 0; i < n; ++i)
+            {
+                push_back(val); // 插入n个T类型的数据
+            }
+        }
+
+        
+        vector(int n, const T& val = T()) // 用n个T类型的数据，进行构造，缺省值为T()
+			:_start(nullptr)
+			, _finish(nullptr)
+			, _end_of_storage(nullptr)
+        {
+            reserve(n); // 扩容
             for (int i = 0; i < n; ++i)
             {
                 push_back(val); // 插入n个T类型的数据

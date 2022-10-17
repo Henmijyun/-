@@ -1,16 +1,16 @@
-#实现MyVector的make
+#实现myList的make
 
 obj = main.o
 
 mytest:$(obj)
 	g++ $(obj) -o mytest 
-main.o:main.cpp MyVector.h
+main.o:main.cpp myList.h
 	g++ -std=c++11 -c main.cpp -o main.o
 
 
-.PHONY:git1 clean
+.PHONY:git clean
 git:
-	git add main.cpp MyVector.h Makefile
+	git add main.cpp myList.h Makefile
 
 clean:
 	rm -f $(obj) mytest 
