@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <list>
 #include <assert.h>
+#include "reverseIterator.h"
 
 using namespace std;
 
@@ -33,8 +34,8 @@ namespace skk
     {
         
         typedef list_node<T> Node; 
-        typedef __list_iterator<T, Ref, Ptr> iterator;
-        
+        typedef __list_iterator<T, Ref, Ptr> iterator; 
+
 
         //////////////////////////////
         //这里是为了使用std::find()而增加的源码typedef,与list无关，不用管
@@ -110,6 +111,9 @@ namespace skk
         typedef __list_iterator<T, const T&, const T*> const_iterator; 
         // 利用模板实例化去控制const T& 和 const T*
         
+        typedef __reverse_iterator<iterator, T&, T*> reverse_iterator;
+        typedef __reverse_iterator<const_iterator, const T&, const T*> const_reverse_iterator;
+
         iterator begin()
         {
             return iterator(_head->_next);
@@ -129,6 +133,27 @@ namespace skk
         {
             return const_iterator(_head);
         }
+        
+        reverse_iterator rbegin()
+        {
+            return reverse_iterator(end()); // 用end返回的迭代器构造一个反向迭代器
+        }
+
+        reverse_iterator rend()
+        {
+            return reverse_iterator(begin()); // 同理
+        }
+
+        const_reverse_iterator rbegin() const
+        {
+            return const_reverse_iterator(end());
+        }
+
+        const_reverse_iterator rend() const
+        {
+            return const_reverse_iterator(begin());
+        }
+        
         
         void empty_init() // 创建 并 初始化 哨兵位的头
         {
@@ -350,6 +375,16 @@ namespace skk
         for (auto& e : lt)
         { 
             cout << e << " ";
+        }
+        cout << endl;
+
+
+        // 反向迭代器
+        list<int>::reverse_iterator rit = lt.rbegin();
+        while (rit != lt.rend())
+        {
+            cout << *rit << " "; 
+            ++rit;
         }
         cout << endl;
     }
