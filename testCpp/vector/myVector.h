@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <string.h>
+#include "reverseIterator.h"
 
 using namespace std;
 
@@ -18,6 +19,9 @@ namespace skk
 	public:
 		typedef T* iterator;
 		typedef const T* const_iterator;
+
+        typedef __reverse_iterator<iterator, T&, T*> reverse_iterator;
+        typedef __reverse_iterator<const_iterator, const T&, const T*> const_reverse_iterator;
 
 		iterator begin()
 		{
@@ -38,6 +42,27 @@ namespace skk
 		{
 			return _finish; 
 		}
+
+		reverse_iterator rbegin() // 反向迭代器
+		{
+			return reverse_iterator(end());
+		}
+
+		const_reverse_iterator rbegin() const
+		{
+			return const_reverse_iterator(end());
+		}
+		
+		reverse_iterator rend()
+		{
+			return reverse_iterator(begin()); 
+		}
+
+		const_reverse_iterator rend() const
+		{
+			return const_reverse_iterator(begin()); 
+		}
+
 
 
 		vector()
@@ -431,6 +456,15 @@ namespace skk
 			cout << e << " ";
 		}
 		cout << endl;
+
+
+        vector<int>::reverse_iterator rit = v.rbegin(); // 反向迭代器
+        while (rit != v.rend())
+        {
+            cout << *rit << " ";
+            ++rit;
+        }
+        cout << endl;
     }
 
 
