@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <assert.h>
 
 using namespace std;
 
@@ -10,34 +11,120 @@ enum Colour
     BLACK
 };
 
-template<class K, class V>
+template<class T>
 struct RBTreeNode
 {
-    RBTreeNode<K, V>* _left;
-    RBTreeNode<K, V>* _right;
-    RBTreeNode<K, V>* _parent;
+    RBTreeNode<T>* _left;
+    RBTreeNode<T>* _right;
+    RBTreeNode<T>* _parent;
 
-    pair<K, V> _kv;
+    T _data;
     Colour _col;
 
-    RBTreeNode(const pair<K, V>& kv)
+    RBTreeNode(const T& data)
         :_left(nullptr)
          ,_right(nullptr)
          ,_parent(nullptr)
-         ,_kv(kv)
+         ,_data(data)
     {}
 };
 
-template<class K, class V>
+template<class T, class Ref, class Ptr>
+struct __RBTreeIterator
+{
+    typedef RBTreeNode<T> Node;
+    typedef __RBTreeIterator<T, Ref, Ptr> Self;
+    Node* _node;
+
+    __RBTreeIterator(Node* node)
+        :_node(node)
+    {}
+
+    Ref operator*()
+    {
+        return _node->_data;
+    }
+
+    Ptr operator->()
+    {
+        return &_node->_data;
+    }
+
+    bool operator!=(const Self& s) const 
+    {
+        return _node != s._node;
+    }
+
+    bool operator==(const Self& s) const 
+    {
+        return _node == s._node;
+    }
+
+    Self& operator++()  // 中序遍历
+    {
+        if (_node->_right)
+        {
+            // 下一个就是右子树的最左节点
+            Node* left = _node->_right;
+            while (left->_left)
+            {
+                left = left->_left;
+            }
+            _node = left;
+        }
+        else 
+        {
+            // 找祖先里面，孩子不是祖先的右子树那个
+            Node* parent = _node->_parent;
+            Node* cur = _node;
+            while (parent && cur == parent->_right)
+            {
+                cur = cur->_parent;
+                parent = cur->_parent;
+            }
+
+            _node = parent;
+        }
+
+        return *this;
+    }
+
+    Self& operator--()
+    {
+        return *this;
+    }
+};
+
+template<class K, class T, class KeyOfT>
 struct RBTree
 {
-    typedef RBTreeNode<K, V> Node;
+    typedef RBTreeNode<T> Node;
 public:
-    bool Insert(const pair<K, V>& kv)
+    typedef __RBTreeIterator<T, T&, T*> iterator;
+
+    iterator begin()
     {
+        Node* left = _root;
+        while (left && left->_left)
+        {
+            left = left->_left;
+        }
+
+        return iterator(left);
+    }
+
+    iterator end()
+    {
+        return iterator(nullptr);
+    }
+
+    bool Insert(const T& data)
+    {
+        KeyOfT kot;
+
         if (_root == nullptr)
         {
-            _root = new Node(kv);
+            _root = new Node(data);
             _root->_col = BLACK;
             return true;
         }
@@ -47,12 +134,12 @@ public:
 
         while (cur)
         {
-            if (cur->_kv.first < kv.first)
+            if (kot(cur->_data) < kot(data))
             {
                 parent = cur;
                 cur = cur->_right;
             }
-            else if (cur->_kv.first > kv.first)
+            else if (kot(cur->_data) > kot(data))
             {
                 parent = cur;
                 cur = cur->_left;
@@ -64,10 +151,10 @@ public:
         }
 
         // 走到空，新建+链接
-        cur = new Node(kv);
+        cur = new Node(data);
         cur->_col = RED;
 
-        if (parent->_kv.first < kv.first)
+        if (kot(parent->_data) < kot(data))
         {
             parent->_right = cur;
         }
