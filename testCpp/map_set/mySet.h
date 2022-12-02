@@ -28,10 +28,10 @@ namespace skk
       }
 
 
-        bool insert(const K& key)
-        {
-            return _t.Insert(key);
-        }
+      pair<iterator, bool> insert(const K& key)
+      {
+          return _t.Insert(key);
+      }
     private:
         RBTree<K, K, SetKeyOfT> _t;
     };

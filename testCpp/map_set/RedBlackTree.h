@@ -91,6 +91,30 @@ struct __RBTreeIterator
 
     Self& operator--()
     {
+        if (_node->_left)
+        {
+            // 下一个是左子树的最右节点
+            Node* right = _node->_left;
+            while (right->_right)
+            {
+                right = right->_right;
+            }
+
+            _node = right;
+        }
+        else 
+        {
+            // 孩子不是父亲左的那个
+            Node* parent = _node->_parent;
+            Node* cur = _node;
+            while (parent && cur == parent->_left)
+            {
+                cur = cur->_parent;
+                parent = parent->_parent;
+            }
+
+            _node = parent;
+        }
         return *this;
     }
 };
@@ -118,7 +142,7 @@ public:
         return iterator(nullptr);
     }
 
-    bool Insert(const T& data)
+    pair<iterator, bool> Insert(const T& data)
     {
         KeyOfT kot;
 
@@ -126,7 +150,7 @@ public:
         {
             _root = new Node(data);
             _root->_col = BLACK;
-            return true;
+            return make_pair(iterator(_root), true);  // 返回新插入的节点迭代器
         }
         
         Node* parent = nullptr;
@@ -146,12 +170,13 @@ public:
             }
             else 
             {
-                return false;
+                return make_pair(iterator(cur), false); // 返回本来已经有的节点迭代器
             }
         }
 
         // 走到空，新建+链接
         cur = new Node(data);
+        Node* newnode = cur; // 记录节点，用于返回
         cur->_col = RED;
 
         if (kot(parent->_data) < kot(data))
@@ -254,7 +279,7 @@ public:
         }
 
         _root->_col = BLACK;
-        return true;
+        return make_pair(iterator(newnode), true);
     }
 
     void InOrder()
