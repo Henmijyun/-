@@ -16,6 +16,18 @@ namespace skk
         };
 
     public:
+        typedef typename HashBucket::HashTable<K, K, Hash, SetKeyOfT>::iterator iterator;
+
+        iterator begin()    
+        {    
+            return _ht.begin();  
+        }  
+                 
+        iterator end()  
+        {  
+            return _ht.end();                                                              
+        }                
+
         bool insert(const K& key)
         {
             return _ht.Insert(key);
@@ -33,6 +45,14 @@ namespace skk
         s.insert(3);
         s.insert(1);
         s.insert(5);
+
+        unordered_set<int>::iterator it = s.begin();
+        while (it != s.end())
+        {
+            cout << *it << " "; 
+            ++it;
+        }
+        cout << endl;
     }
 }
 

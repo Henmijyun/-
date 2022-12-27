@@ -31,6 +31,8 @@ struct HashFunc<string>   // 仿函数 , 特化
     }
 };
 
+
+
 // 开散列 -- 拉链法、哈希桶
 namespace HashBucket 
 {
@@ -46,11 +48,112 @@ namespace HashBucket
         {}
     };
 
+
+    // 前置声明
+    template<class K, class T, class Hash, class KeyOfT>
+    class HashTable; 
+
+    // 迭代器 (单向)
+    template<class K, class T, class Hash, class KeyOfT>
+    struct __HashIterator
+    {
+        typedef HashNode<T> Node;
+        typedef HashTable<K, T, Hash, KeyOfT> HT;
+        typedef __HashIterator<K, T, Hash, KeyOfT> Self;
+    
+        Node* _node;
+        HT* _pht;
+
+        __HashIterator(Node* node, HT* pht)
+            :_node(node)
+            ,_pht(pht)
+        {}
+
+
+        T& operator*()
+        {
+            return _node->_data;
+        }
+
+        T* operator->()
+        {
+            return &_node->_data;
+        }
+
+        Self& operator++()
+        {
+            if (_node->_next)
+            {
+                // 在当前桶中迭代
+                _node = _node->_next;
+            }
+            else 
+            {
+                // 找下一个桶
+                Hash hash;
+                KeyOfT kot;
+                size_t i = hash(kot(_node->_data)) % _pht->_tables.size(); // 当前桶下标
+                ++i;
+                for (; i < _pht->_tables.size(); ++i)
+                {
+                    if (_pht->_tables[i])
+                    {
+                        _node = _pht->_tables[i];
+                        break;
+                    }
+                }
+
+                // 说明后面没有有数据的桶
+                if (i == _pht->_tables.size())
+                {
+                    _node = nullptr;
+                }
+            }
+
+            return *this;
+        }
+   
+        bool operator!=(const Self& s) const 
+        {
+            return _node != s._node;
+        }
+
+        bool operator==(const Self& s) const 
+        {
+            return _node == s._node;
+        }
+    };
+
+
     template<class K, class T, class Hash, class KeyOfT>
     class HashTable 
     {
         typedef HashNode<T> Node;
-        public:
+
+        template<class K, class T,class Hash, class KeyOfT>
+        friend struct __HashIterator;
+
+    public:
+        typedef __HashIterator<K, T, Hash, KeyOfT> iterator;
+        
+        iterator begin()
+        {
+            for (size_t i = 0; i < _tables.size(); ++i)
+            {
+                if (_tables[i])
+                {
+                    return iterator(_tables[i], this);
+                }
+            }
+
+            return end();
+        }
+
+        iterator end()
+        {
+            return iterator(nullptr);
+        }
+
         ~HashTable()
         {
             // 释放桶空间
@@ -68,7 +171,7 @@ namespace HashBucket
         }
 
 
-        inline size_t __stl_next_prime(size_t n)
+        inline size_t __stl_next_prime(size_t n) // 素数可以减少负载因子冲突
         {
             // 素数表
             static const size_t __stl_num_primes = 28;  // static const 只有整型int可以给缺省值
@@ -265,7 +368,7 @@ namespace HashBucket
             }
             return maxLen;
         }
-        private:
+    private:
         vector<Node*> _tables;
         size_t _size = 0;  // 存储的有效数据个数
     };
