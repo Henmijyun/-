@@ -371,13 +371,16 @@ namespace HashBucket
         }
 
         // 单个桶中的数据个数
-        size_t BucketSize(const K& key)
+        size_t BucketSize(const K& key) // 这里的key是vector下标
         {
             size_t len = 0;
-            for (size_t i = 0; i < _tables.size(); ++i)
+            Node* cur = _tables[key];
+            while (cur)
             {
-                if (_tables[i].first == key)
+                ++len;
+                cur = cur->_next;
             }
+            return len;
         }
 
         // 最大的桶的长度
