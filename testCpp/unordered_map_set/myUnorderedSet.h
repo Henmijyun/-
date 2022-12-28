@@ -18,6 +18,12 @@ namespace skk
     public:
         typedef typename HashBucket::HashTable<K, K, Hash, SetKeyOfT>::iterator iterator;
 
+        unordered_set()
+            : _ht()
+        {}
+
+        ////////////////////////////////////////  
+        // iterator 
         iterator begin()    
         {    
             return _ht.begin();  
@@ -27,12 +33,42 @@ namespace skk
         {  
             return _ht.end();                                                              
         }                
+    
+        ////////////////////////////////////// 
+        // capacity 
+        size_t size()const 
+        {
+            return _ht.Size();
+        }
 
-        bool insert(const K& key)
+        bool empty()const 
+        {
+            return _ht.Empty();
+        }
+
+        /////////////////////////////////////////// 
+        // modify 
+        pair<iterator, bool> insert(const K& key)
         {
             return _ht.Insert(key);
         }
 
+        iterator erase(iterator pos)
+        {
+            return _ht.Erase(pos);
+        }
+
+        //////////////////////////////////////// 
+        // bucket 
+        size_t bucket_count()
+        {
+            return _ht.BucketCount();
+        }
+
+        size_t bucket_size(const K& key)
+        {
+            return _ht.BucketSize(key);
+        }
     private:
         HashBucket::HashTable<K, K, Hash, SetKeyOfT> _ht;
     };

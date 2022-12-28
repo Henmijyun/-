@@ -49,6 +49,9 @@ namespace HashBucket
     };
 
 
+    ///////////////////////////////////////////////////////////////// 
+    // iterator 
+    
     // 前置声明
     template<class K, class T, class Hash, class KeyOfT>
     class HashTable; 
@@ -124,18 +127,21 @@ namespace HashBucket
         }
     };
 
+    /////////////////////////////////////////////////////////// 
+    // HashTable 
 
     template<class K, class T, class Hash, class KeyOfT>
     class HashTable 
     {
         typedef HashNode<T> Node;
 
-        template<class K, class T,class Hash, class KeyOfT>
+        template<class k, class t, class hash, class keyoft> // g++环境下，类模板的名字和友元模板的名字会发生冲突，导致编译器无法辨别。因此这里模板用小写字母
         friend struct __HashIterator;
 
     public:
         typedef __HashIterator<K, T, Hash, KeyOfT> iterator;
-        
+       
+        //HashTable()
         iterator begin()
         {
             for (size_t i = 0; i < _tables.size(); ++i)
@@ -151,7 +157,7 @@ namespace HashBucket
 
         iterator end()
         {
-            return iterator(nullptr);
+            return iterator(nullptr, this);
         }
 
         ~HashTable()
@@ -168,6 +174,8 @@ namespace HashBucket
                 }
                 _tables[i] = nullptr;
             }
+
+            _size = 0;
         }
 
 
@@ -201,15 +209,19 @@ namespace HashBucket
         }
 
 
-        bool Insert(const T& data)
+        ////////////////////////////////////////////////////////// 
+        // modify 
+        pair<iterator, bool> Insert(const T& data)
         {
             Hash hash;
             KeyOfT kot;
             
             // 去重
-            if (Find(kot(data)))
+            iterator ret = Find(kot(data));
+            if (ret != end())
             {
-                return false;
+                // 如果值已经存在，返回这个值的迭代器
+                return make_pair(ret, false);
             }
 
             // 负载因子到1就扩容
@@ -246,33 +258,10 @@ namespace HashBucket
             _tables[hashi] = newnode;
             ++_size;
 
-            return true;
+            // 把新插入的值，创建迭代器返回
+            return make_pair(iterator(newnode, this), true);
         }
 
-
-        Node* Find(const K& key)
-        {
-            if (_tables.size() == 0)
-            {
-                return nullptr;
-            }
-
-            Hash hash;
-            KeyOfT kot;
-
-            size_t hashi = hash(key) % _tables.size();
-            Node* cur = _tables[hashi];
-            while (cur)
-            {
-                if (kot(cur->_data) == key)
-                {
-                    return cur;
-                }
-                cur = cur->_next;
-            }
-            
-            return nullptr;
-        }
 
         bool Erase(const K& key)
         {
@@ -316,9 +305,43 @@ namespace HashBucket
             return false;
         }
 
-        size_t Size()
+        //////////////////////////////////////////////// 
+        // lookup
+        iterator Find(const K& key)
+        {
+            if (_tables.size() == 0)
+            {
+                return end();
+            }
+
+            Hash hash;
+            KeyOfT kot;
+
+            size_t hashi = hash(key) % _tables.size();
+            Node* cur = _tables[hashi];
+            while (cur)
+            {
+                if (kot(cur->_data) == key)
+                {
+                    return iterator(cur, this);
+                }
+                cur = cur->_next;
+            }
+            
+            // return iterator(nullptr, this);
+            return end();
+        }
+
+        ///////////////////////////////////////////// 
+        // capacity 
+        size_t Size()const 
         {
             return _size;
+        }
+
+        bool Empty()const 
+        {
+            return 0 == _size;
         }
 
         // 表的长度
@@ -327,7 +350,13 @@ namespace HashBucket
             return _tables.size();
         }
         
-        // 桶的个数
+        // 桶的总数 (空或不空)
+        size_t BuckCount()const 
+        {
+            return _tables.capacity();
+        }
+
+        // 有数据的桶的总个数
         size_t BucketNum()
         {
             size_t num = 0;
@@ -339,6 +368,16 @@ namespace HashBucket
                 }
             }
             return num;
+        }
+
+        // 单个桶中的数据个数
+        size_t BucketSize(const K& key)
+        {
+            size_t len = 0;
+            for (size_t i = 0; i < _tables.size(); ++i)
+            {
+                if (_tables[i].first == key)
+            }
         }
 
         // 最大的桶的长度
