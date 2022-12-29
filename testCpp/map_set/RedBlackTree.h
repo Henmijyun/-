@@ -163,7 +163,8 @@ public:
                 parent = cur;
                 cur = cur->_right;
             }
-            else if (kot(cur->_data) > kot(data))
+            //else if (kot(cur->_data) > kot(data))
+            else if (kot(data) < kot(cur->_data))
             {
                 parent = cur;
                 cur = cur->_left;
