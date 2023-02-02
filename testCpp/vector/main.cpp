@@ -14,6 +14,10 @@ int main()
     {
         cout << e.what() << endl;
     }
+    catch (...)
+    {
+        cout << "Unkown Exception" << endl;
+    }
 
     return 0;
 }
