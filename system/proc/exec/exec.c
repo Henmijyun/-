@@ -31,11 +31,11 @@ int main(int argc, char* argv[], char* env[])
         // 用法：
         
         //execle(myfile, "mycmd", "-a", NULL, env);
-        execle(myfile, "mycmd", "-a", NULL, _env);
+        execle(myfile, "mycmd", "-a", NULL, _env);   // 路径 程序名 参数 （NULL参数结尾） 环境变量
         //
-        //execlp("./test.py", "test.py", NULL);
+        //execlp("./test.py", "test.py", NULL);         // 加了chmod +x test.py 指令，使系统自动调用python的解析器
         //execlp("bash", "bash", "test.sh", NULL);
-        //execlp("python", "python", "test.py", NULL);
+        //execlp("python", "python", "test.py", NULL);   // 不加chmod +x test.py
         //execl(myfile, "mycmd", "-b", NULL);
         //execl("/usr/bin/ls", "ls", "-a", "-l", NULL);
         //execv("/usr/bin/ls", _argv); //和上面的execl只有传参方式的区别

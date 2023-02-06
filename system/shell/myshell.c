@@ -47,13 +47,13 @@ int main()
 
         while (g_argv[index++] = strtok(NULL, SEP)); // 第二次之后，继续解析原始字符串的话，传NULL即可
         
-        // 4、内置命令，让父进程(shell)自己去执行的命令，叫做内置命令 或 内建命令。
+        // 4、内置命令，让父进程(shell)自己去执行的命令，叫做内置命令 或 内建命令。 (cd命令)
         //  内建命令本质其实是shell中的一个函数调用
         if (strcmp(g_argv[0], "cd") == 0) // not child execute, father execute
         {
             if (g_argv[1] != NULL)
             {
-                chdir(g_argv[1]); // 移动到字符串中的位置 cd path/code/、 cd ..  
+                chdir(g_argv[1]); // chdir函数，移动到字符串中的位置 cd path/code/、 cd ..  
             }
             continue;
         }
@@ -63,7 +63,7 @@ int main()
         if (id == 0) // child
         {
             printf("下面功能是由子进程所进程的\n");
-            execvp(g_argv[0], g_argv); // ls ls -a -l -i
+            execvp(g_argv[0], g_argv); // 参数("ls", "ls -a -l -i")
             exit(1);
         }
         else if (id < 0)
