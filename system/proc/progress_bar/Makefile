@@ -1,3 +1,4 @@
+# 进度条小程序
 proc:proc.c
 	gcc proc.c -o proc
 

@@ -11,12 +11,18 @@
 
 // 保存完整的命令行字符串
 char cmd_line[NUM];
+
 // 保存打散后的命令行字符串
 char* g_argv[SIZE];
+
+// 写一个环境变量的buffer，用于测试
+char g_myval[64];
 
 // shell 运行原理：通过让子进程执行命令，父进程等待&&解析命令
 int main()
 {
+    extern char** environ;   // 全局二级指针 指向环境变量
+
     // 0、命令行解释器shell，一定是一个常驻内存的进程，不退出
     while (1)
     {
@@ -46,9 +52,27 @@ int main()
         }
 
         while (g_argv[index++] = strtok(NULL, SEP)); // 第二次之后，继续解析原始字符串的话，传NULL即可
-        
-        // 4、内置命令，让父进程(shell)自己去执行的命令，叫做内置命令 或 内建命令。 (cd命令)
+       
+
+        // 4、内置命令，让父进程(shell)自己去执行的命令，叫做内置命令 或 内建命令。 (cd ecport 命令)
         //  内建命令本质其实是shell中的一个函数调用
+        
+        // export myval=666 设置新的环境变量，子进程会继承
+        if (strcmp(g_argv[0], "export") == 0 && g_argv[1] != NULL)
+        {
+            strcpy(g_myval, g_argv[1]);
+            int ret = putenv(g_myval);  // putenv函数，添加一个环境变量
+            if (ret == 0) 
+            {
+                printf ("%s export success\n", g_argv[1]);  // 父进程是否导入成功
+            }
+            // for (int i = 0; environ[i]; i++)
+            //      printf ("%d: %s\n", i, environ[i]);
+            
+            continue; 
+        }
+
+        // cd 移动路径
         if (strcmp(g_argv[0], "cd") == 0) // not child execute, father execute
         {
             if (g_argv[1] != NULL)
@@ -63,7 +87,9 @@ int main()
         if (id == 0) // child
         {
             printf("下面功能是由子进程所进程的\n");
-            execvp(g_argv[0], g_argv); // 参数("ls", "ls -a -l -i")
+            printf("child, MYVAL: %s\n", getenv("MYVAL"));
+            printf("child, PATH: %s\n", getenv("PATH"));
+            execvp(g_argv[0], g_argv); // 替换，参数("ls", "ls -a -l -i")
             exit(1);
         }
         else if (id < 0)

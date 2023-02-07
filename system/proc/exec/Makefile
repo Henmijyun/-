@@ -1,3 +1,5 @@
+# 进程等待 + 进程替换
+
 .PHONY:all
 all:exec mycmd
 
