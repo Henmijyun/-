@@ -1,6 +1,6 @@
 # 调用系统的进程替换，实现myShell
 .PHONY:all
-all: myShell myTest
+all: myShell myTest myShellIO 
 
 
 myShell:myshell.c
@@ -9,7 +9,9 @@ myShell:myshell.c
 myTest:mytest.c
 	gcc mytest.c -o myTest 
 
+myShellIO:myshell_io.c
+	gcc myshell_io.c -o myShellIO
 
 .PHONY:clean
 clean:
-	rm -f *.o myShell myTest  
+	rm -f *.o *.txt myShell myTest myShellIO 
