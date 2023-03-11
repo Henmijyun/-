@@ -1,4 +1,4 @@
-# 管道的模拟实现
+# 进程池的模拟实现
 
 myProcessPool.exe:myProcessPool.cc
 	g++ -std=c++11 myProcessPool.cc -o myProcessPool.exe #-DDEBUG
