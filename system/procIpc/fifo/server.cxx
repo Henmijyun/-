@@ -1,5 +1,32 @@
 #include "comm.hpp"
 
+static void getMessage(int fd)  // 通信代码的实现  由子进程竞争执行
+{
+    char buffer[SIZE];
+    while (true)
+    {
+        memset(buffer, '\0', sizeof(buffer));  // 初始化全0
+        ssize_t s = read(fd, buffer, sizeof(buffer)-1);  // -1让它不要满
+        if (s > 0)
+        {
+            // 输出
+            cout << "[" << getpid() << "]" <<  "client say> " << buffer << endl;
+        }
+        else if (s == 0)
+        {
+            // end of file 退出
+            cout << "[" << getpid() << "]" << "read end of file, clien quit, server quit too!!" << endl;
+            break;
+        }
+        else 
+        {
+            // read error 
+            perror("read");
+            break;
+        }
+    }
+}
+
 int main()
 {
     // 1.创建管道文件
@@ -19,29 +46,21 @@ int main()
     }
     Log("打开管道文件成功", Debug) << "step 2" << endl;
 
-    // 3. 编写正常的通信代码
-    char buffer[SIZE];
-    while (true)
+    int nums = 3;  // 子进程数
+    for (int i = 0; i < nums; ++i)
     {
-        memset(buffer, '\0', sizeof(buffer));  // 初始化全0
-        ssize_t s = read(fd, buffer, sizeof(buffer)-1);  // -1让它不要满
-        if (s > 0)
+        pid_t id = fork();
+        if (id == 0)
         {
-            // 输出
-            cout << "client say> " << buffer << endl;
+            // 3. 编写正常的通信代码
+            getMessage(fd);
+            exit(1);
         }
-        else if (s == 0)
-        {
-            // end of file
-            cout << "read end of file, clien quit, server quit too!!" << endl;
-            break;
-        }
-        else 
-        {
-            // read error 
-            perror("read");
-            break;
-        }
+    }
+
+    for (int i = 0; i < nums; ++i)
+    {
+        waitpid(-1, nullptr, 0);
     }
 
     // 4. 关闭文件
