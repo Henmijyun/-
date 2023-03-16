@@ -2,10 +2,10 @@
 
 #define PROCESS_NUM 5
 
-int waitCommand(int waitFd, bool &quit)  // Èç¹û¶Ô·½²»·¢£¬ÎÒÃÇ¾Í×èÈû
+int waitCommand(int waitFd, bool &quit)  // å¦‚æœå¯¹æ–¹ä¸å‘ï¼Œæˆ‘ä»¬å°±é˜»å¡
 {
-    uint32_t command = 0;  // ¹Ì¶¨´óĞ¡32bit
-    ssize_t s = read(waitFd, &command, sizeof(command));  // ¶Á£¬·µ»ØÖµÎª¶Áµ½µÄÊıÁ¿
+    uint32_t command = 0;  // å›ºå®šå¤§å°32bit
+    ssize_t s = read(waitFd, &command, sizeof(command));  // è¯»ï¼Œè¿”å›å€¼ä¸ºè¯»åˆ°çš„æ•°é‡
     if (s == 0)
     {
         quit = true;
@@ -23,76 +23,76 @@ void sendAndWakeup(pid_t who, int fd, uint32_t command)
 
 int main()
 {
-    // ´úÂëÖĞ¹ØÓÚfdµÄ´¦Àí£¬ÓĞÒ»¸öĞ¡ÎÊÌâ
+    // ä»£ç ä¸­å…³äºfdçš„å¤„ç†ï¼Œæœ‰ä¸€ä¸ªå°é—®é¢˜,ï¼ˆæ²¡æœ‰å®Œå…¨æŠŠå†™ç«¯å…³é—­ï¼Œä½†ä¸å½±å“è¿›ç¨‹é€šä¿¡ï¼‰
     load();
 
-    // pid: pipefd  ½ø³ÌÁĞ±í
+    // pid: pipefd  è¿›ç¨‹åˆ—è¡¨
     vector<pair<pid_t, int>> slots;
 
-    // ÏÈ´´½¨¶à¸ö½ø³Ì
+    // å…ˆåˆ›å»ºå¤šä¸ªè¿›ç¨‹
     for (int i = 0; i < PROCESS_NUM; i++)
     {
-        // ´´½¨¹ÜµÀ
+        // åˆ›å»ºç®¡é“
         int pipefd[2] = { 0 };
-        int n = pipe(pipefd);  // ¹ÜµÀµÄÏµÍ³µ÷ÓÃ
-        assert(n == 0);   // ³É¹¦·µ»Ø0£¬Ê§°Ü·µ»Ø-1
+        int n = pipe(pipefd);  // ç®¡é“çš„ç³»ç»Ÿè°ƒç”¨
+        assert(n == 0);   // æˆåŠŸè¿”å›0ï¼Œå¤±è´¥è¿”å›-1
         (void)n;
 
         pid_t id = fork();
         assert(id != -1);
         
-        // ×Ó½ø³ÌÎÒÃÇÈÃËû½øĞĞ¶ÁÈ¡
+        // å­è¿›ç¨‹æˆ‘ä»¬è®©ä»–è¿›è¡Œè¯»å–
         if (id == 0)
         {
-            // ¹Ø±ÕĞ´¶Ë
+            // å…³é—­å†™ç«¯
             close(pipefd[1]);
 
             // child
             while (true)
             {
                 // pipefd[0]
-                // µÈÃüÁî
+                // ç­‰å‘½ä»¤
                 bool quit = false;
-                int command = waitCommand(pipefd[0], quit); // Èç¹û¶Ô·½²»·¢£¬ÎÒÃÇ¾Í×èÈû
+                int command = waitCommand(pipefd[0], quit); // å¦‚æœå¯¹æ–¹ä¸å‘ï¼Œæˆ‘ä»¬å°±é˜»å¡
                 if (quit)
                 {
                     break;
                 }
 
-                // Ö´ĞĞ¶ÔÓ¦µÄÃüÁî
+                // æ‰§è¡Œå¯¹åº”çš„å‘½ä»¤
                 if (command >= 0 && command < handlerSize())
                 {
-                    callbacks[command]();  // µ÷ÓÃ¶ÔÓ¦ÏÂ±êµÄº¯Êı
+                    callbacks[command]();  // è°ƒç”¨å¯¹åº”ä¸‹æ ‡çš„å‡½æ•°
                 }
                 else
                 {
-                    cout << "·Ç·¨command: " << command << endl;
+                    cout << "éæ³•command: " << command << endl;
                 }
             }
             exit(1);
         }
         
-        // father, ½øĞĞĞ´Èë£¬¹Ø±Õ¶Á¶Ë
+        // father, è¿›è¡Œå†™å…¥ï¼Œå…³é—­è¯»ç«¯
         close(pipefd[0]);
         slots.push_back(pair<pid_t, int>(id, pipefd[1]));
     }
 
-    // ¸¸½ø³ÌÅÉ·¢ÈÎÎñ
-    srand((unsigned long)time(nullptr) ^ getpid() ^ 2135123153L);  // ÈÃÊı¾İÔ´¸üËæ»ú
+    // çˆ¶è¿›ç¨‹æ´¾å‘ä»»åŠ¡
+    srand((unsigned long)time(nullptr) ^ getpid() ^ 2135123153L);  // è®©æ•°æ®æºæ›´éšæœº
     while (true)
     {
-        // Ëæ»úÈÎÎñ/½ÓÊÕÈÎÎñ
-        // Ñ¡ÔñÒ»¸öÈÎÎñ£¬Èç¹ûÈÎÎñÊÇ´ÓÍøÂçÀïÃæÀ´µÄ,¾ÍĞèÒªÍøÂç½ÓÊÕ
+        // éšæœºä»»åŠ¡/æ¥æ”¶ä»»åŠ¡
+        // é€‰æ‹©ä¸€ä¸ªä»»åŠ¡ï¼Œå¦‚æœä»»åŠ¡æ˜¯ä»ç½‘ç»œé‡Œé¢æ¥çš„,å°±éœ€è¦ç½‘ç»œæ¥æ”¶
         int command = rand() % handlerSize();
 
-        // Ñ¡ÔñÒ»¸ö½ø³Ì£¬²ÉÓÃËæ»úÊıµÄ·½Ê½£¬Ñ¡Ôñ½ø³ÌÈ¥Íê³ÉÈÎÎñ£¬Ëæ»úÊı·½Ê½µÄ¸ºÔØ¾ùºâ
+        // é€‰æ‹©ä¸€ä¸ªè¿›ç¨‹ï¼Œé‡‡ç”¨éšæœºæ•°çš„æ–¹å¼ï¼Œé€‰æ‹©è¿›ç¨‹å»å®Œæˆä»»åŠ¡ï¼Œéšæœºæ•°æ–¹å¼çš„è´Ÿè½½å‡è¡¡
         int choice = rand() % slots.size();
 
-        // °ÑÈÎÎñ¸øÖ¸¶¨µÄ½ø³Ì
+        // æŠŠä»»åŠ¡ç»™æŒ‡å®šçš„è¿›ç¨‹
         sendAndWakeup(slots[choice].first, slots[choice].second, command);
         sleep(1);
 
-        // ×ÔÖ÷Ñ¡ÔñĞÍ£º
+        // è‡ªä¸»é€‰æ‹©å‹ï¼š
         // int select, command;
         // cout << "#######################################" << endl;
         // cout << "#  1.show funcitons    2.send command #" << endl;
@@ -104,11 +104,11 @@ int main()
         // else if (select == 2)
         // {
         //      cout << "Enter Your Command> ";
-        //      // Ñ¡ÔñÈÎÎñ
+        //      // é€‰æ‹©ä»»åŠ¡
         //      cin >> command;
-        //      // Ñ¡Ôñ½ø³Ì
+        //      // é€‰æ‹©è¿›ç¨‹
         //      int choice = rand() % slots.size();
-        //      // °ÑÈÎÎñ¸øÖ¸¶¨µÄ½ø³Ì
+        //      // æŠŠä»»åŠ¡ç»™æŒ‡å®šçš„è¿›ç¨‹
         //      sendAndWakeup(slots[choice].first, slots[choice].second, command);
         // }
         // else
@@ -116,13 +116,13 @@ int main()
         // }
     }
 
-    // ¹Ø±Õfd, ËùÓĞµÄ×Ó½ø³Ì¶¼»áÍË³ö
+    // å…³é—­fd, æ‰€æœ‰çš„å­è¿›ç¨‹éƒ½ä¼šé€€å‡º
     for (const auto &slot : slots)
     {
         close(slot.second);
     }
 
-    // »ØÊÕËùÓĞµÄ×Ó½ø³ÌĞÅÏ¢
+    // å›æ”¶æ‰€æœ‰çš„å­è¿›ç¨‹ä¿¡æ¯
     for (const auto &slot : slots)
     {
         waitpid(slot.first, nullptr, 0);

@@ -14,49 +14,49 @@
 
 using namespace std;
 
-typedef function<void()> func;  // ÓÃÓÚº¯Êı»Øµ÷
+typedef function<void()> func;  // ç”¨äºå‡½æ•°å›è°ƒ
 
-vector<func> callbacks;    // º¯ÊıÁĞ±í
-unordered_map<int, string> desc;   // ¼ÇÂ¼½ø³ÌĞÅÏ¢
+vector<func> callbacks;    // å‡½æ•°åˆ—è¡¨
+unordered_map<int, string> desc;   // è®°å½•è¿›ç¨‹ä¿¡æ¯
 
-// ¸÷×Ô½ø³Ì
+// å„è‡ªè¿›ç¨‹
 void readMySQL()
 {
-    cout << "sub process[ " << getpid() << " ] Ö´ĞĞ·ÃÎÊÊı¾İ¿âµÄÈÎÎñ\n" << endl;
+    cout << "sub process[ " << getpid() << " ] æ‰§è¡Œè®¿é—®æ•°æ®åº“çš„ä»»åŠ¡\n" << endl;
 }
 
 void execuleUrl()
 {
-    cout << "sub process[ " << getpid() << " ] Ö´ĞĞurl½âÎö\n" << endl;
+    cout << "sub process[ " << getpid() << " ] æ‰§è¡Œurlè§£æ\n" << endl;
 }
 
 void cal()
 {
-    cout << "sub process[ " << getpid() << " ] Ö´ĞĞ¼ÓÃÜÈÎÎñ\n" << endl;
+    cout << "sub process[ " << getpid() << " ] æ‰§è¡ŒåŠ å¯†ä»»åŠ¡\n" << endl;
 }
 
 void save()
 {
-    cout << "sub process[ " << getpid() << " ] Ö´ĞĞÊı¾İ³Ö¾Ã»¯ÈÎÎñ\n" << endl;
+    cout << "sub process[ " << getpid() << " ] æ‰§è¡Œæ•°æ®æŒä¹…åŒ–ä»»åŠ¡\n" << endl;
 }
 
 
-void load()   // ´´½¨½ø³ÌÁĞ±í
+void load()   // åˆ›å»ºè¿›ç¨‹åˆ—è¡¨
 {
-    desc.insert({callbacks.size(), "readMySQL: ¶ÁÈ¡Êı¾İ¿â"});
+    desc.insert({callbacks.size(), "readMySQL: è¯»å–æ•°æ®åº“"});
     callbacks.push_back(readMySQL);
 
-    desc.insert({callbacks.size(), "execuleUrl: ½øĞĞurl½âÎö"});
+    desc.insert({callbacks.size(), "execuleUrl: è¿›è¡Œurlè§£æ"});
     callbacks.push_back(execuleUrl);
 
-    desc.insert({callbacks.size(), "cal: ½øĞĞ¼ÓÃÜ¼ÆËã"});
+    desc.insert({callbacks.size(), "cal: è¿›è¡ŒåŠ å¯†è®¡ç®—"});
     callbacks.push_back(cal);
 
-    desc.insert({callbacks.size(), "save: ½øĞĞÊı¾İµÄÎÄ¼ş±£´æ"});
+    desc.insert({callbacks.size(), "save: è¿›è¡Œæ•°æ®çš„æ–‡ä»¶ä¿å­˜"});
     callbacks.push_back(save);
 }
 
-void showHandler()   // Õ¹Ê¾½ø³ÌÁĞ±í
+void showHandler()   // å±•ç¤ºè¿›ç¨‹åˆ—è¡¨
 {
     for (const auto &iter : desc)
     {
@@ -64,7 +64,7 @@ void showHandler()   // Õ¹Ê¾½ø³ÌÁĞ±í
     }
 }
 
-int handlerSize()  // ½ø³ÌÁĞ±í´óĞ¡
+int handlerSize()  // è¿›ç¨‹åˆ—è¡¨å¤§å°
 {
     return callbacks.size();
 }

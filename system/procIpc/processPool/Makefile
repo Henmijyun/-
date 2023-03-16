@@ -1,4 +1,4 @@
-# 进程池的模拟实现
+# 杩涚▼姹犵殑妯℃嫙瀹炵幇
 
 myProcessPool.exe:myProcessPool.cc
 	g++ -std=c++11 myProcessPool.cc -o myProcessPool.exe #-DDEBUG
