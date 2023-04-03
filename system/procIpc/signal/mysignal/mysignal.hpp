@@ -12,7 +12,7 @@ void catchSig(int signum)
     std::cout << "获取一个信号: " << signum << std::endl;
 }
 
-// 1  捕捉信号  （只有9杀死，19暂停，20暂停，这3种不能被获取）
+// test_1  捕捉信号  （只有9杀死，19暂停，20暂停，这3种不能被获取）
 void getSig()
 {
     for(int sig = 1; sig <= 31; sig++) 
@@ -26,7 +26,7 @@ void getSig()
 }
 
 
-static void handler(int signum) // static 只在该函数所在的文件作用域内可见
+static void handler1(int signum) // static 只在该函数所在的文件作用域内可见
 {
     std::cout << "捕捉 信号： " << signum << std::endl;
 }
@@ -47,11 +47,11 @@ static void showPending(sigset_t& pending)
     std::cout << std::endl;
 }
 
-// 2 捕捉信号 kill -2，观察20秒内，阻塞信号集的变化
+// test_2 捕捉信号 kill -2，观察20秒内，阻塞信号集的变化
 void captureSig()
 {
     // 0.为了方便测试，捕获2号信号，让进程2号时不要退出
-    signal(2, handler);
+    signal(2, handler1);
 
     // 1.定义信号集对象
     sigset_t bset, obset;
@@ -108,7 +108,7 @@ static void blockSig(int sig) // 添加到block阻塞信号集
     (void)n;
 }
 
-// 3 把1~31信号 全部添加到阻塞信号集block
+// test_3 把1~31信号 全部添加到阻塞信号集block
 // 观察是否能全部阻塞
 void blockSig()
 {
@@ -126,3 +126,69 @@ void blockSig()
 }
 // 9结束 19暂停 20暂停 无法被添加到阻塞信号集
 
+
+
+
+void showPending2(sigset_t *pending)
+{
+    for(int sig = 1; sig <= 31; sig++)
+    {
+        if(sigismember(pending, sig)) 
+        {
+            std::cout << "1";
+        }
+        else 
+        {
+            std::cout << "0";
+        }    
+    }
+    std::cout << std::endl;
+}
+
+void handler2(int signum)
+{
+    std::cout << "获取了一个信号： " << signum << std::endl;
+    std::cout << "获取了一个信号： " << signum << std::endl;
+    std::cout << "获取了一个信号： " << signum << std::endl;
+    std::cout << "获取了一个信号： " << signum << std::endl;
+
+    sigset_t pending;
+    int c = 20;
+    while (true)
+    {
+        sigpending(&pending);
+        showPending2(&pending);
+        c--;
+        if (!c)
+        {
+            break;
+        }
+        sleep(1);
+    }
+}
+
+// test_4 在任何时刻，只处理一层信号
+void sigProcOne()
+{
+    std::cout << "getpid: " << getpid() << std::endl;
+    // 内核数据类型，用户栈定义的
+    struct sigaction act, oact;
+    act.sa_flags = 0;
+    sigemptyset(&act.sa_mask);  // 初始化
+    act.sa_handler = handler2;
+
+    sigaddset(&act.sa_mask, 3);  // 将信号signum 加入到信号集之中
+    sigaddset(&act.sa_mask, 4);
+    sigaddset(&act.sa_mask, 5);
+    sigaddset(&act.sa_mask, 6);
+    sigaddset(&act.sa_mask, 7);
+
+    // 设置进当前调用进程的pcb中
+    sigaction(2, &act, &oact);
+
+    std::cout << "default action : " << (int)(oact.sa_handler) << std::endl;
+
+
+
+    while(true) sleep(1);
+}
