@@ -3,6 +3,9 @@
 #include <iostream>
 #include <cassert>
 #include <unistd.h>
+#include <cstdlib>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <signal.h>
 
 
@@ -25,6 +28,7 @@ void getSig()
     }
 }
 
+//*******************************************
 
 static void handler1(int signum) // static 只在该函数所在的文件作用域内可见
 {
@@ -98,6 +102,8 @@ void captureSig()
 }
 
 
+//*******************************************
+
 static void blockSig(int sig) // 添加到block阻塞信号集
 {
     sigset_t bset;
@@ -128,7 +134,7 @@ void blockSig()
 
 
 
-
+//*******************************************
 void showPending2(sigset_t *pending)
 {
     for(int sig = 1; sig <= 31; sig++)
@@ -192,3 +198,109 @@ void sigProcOne()
 
     while(true) sleep(1);
 }
+
+
+
+
+
+
+//*******************************************
+
+volatile int flag = 0;  // volatile关键字 
+// 让指定的变量，每次都要去访问内存
+
+void changeFlag(int signum)
+{
+    (void)signum;
+    std::cout <<"change flag: "<< flag;
+    flag = 1;
+    std::cout << "->" << flag << std::endl;
+}
+
+// test_5 编译器优化导致的信号无法接收问题
+void testVolatile()
+{
+    signal(2, changeFlag);
+    while(!flag);
+    std::cout << "进程正常退出后：" << flag << std::endl;
+}
+
+
+//*******************************************
+void handler3(int signum)
+{
+    pid_t id;
+    while ((id = waitpid(-1, NULL, WNOHANG)) > 0)
+    {
+        std::cout << "wait child success: " << id << std::endl;
+    }
+    std::cout << "child is quit! " << getpid() << std::endl;
+}
+
+void testSigchld()
+{
+    signal(SIGCHLD, handler3);
+    pid_t cid;
+    if ((cid = fork()) == 0)
+    {
+        // child
+        std::cout << "child: " << getpid() << std::endl;
+        sleep(3);
+        exit(1);
+    }
+
+    while (1)
+    {
+        std::cout << "father proc is doing some thing! pid: " << getpid() << std::endl;
+        sleep(1);
+    }
+}
+
+/*
+// // 如果我们不想等待子进程，并且我们还想让子进程退出之后，自动释放僵尸子进程
+// int main()
+// {
+//     // OS 默认就是忽略的
+//     signal(SIGCHLD, SIG_IGN); // 手动设置对子进程进行忽略
+
+//     if(fork() == 0)
+//     {
+//         cout << "child: " << getpid() << endl;
+//         sleep(5);
+//         exit(0);
+//     }
+
+//     while(true)
+//     {
+//         cout << "parent: " << getpid() << " 执行我自己的任务!" << endl;
+//         sleep(1);
+//     }
+// }
+
+
+// vector<int> pids;
+void handler(int signum)
+{
+    cout << "子进程退出: " << signum << "fater: " << getpid() << endl;
+    // wait();
+    //10 子进程都退出
+    // while(wait())
+    // 10 5个子进程退出？
+}
+
+// 证明 子进程退出，会想父进程发送信号
+int main()
+{
+    signal(SIGCHLD, handler);
+    if(fork() == 0)
+    {
+        cout << "child pid: " << getpid() << endl;
+        sleep(100);
+        exit(0);
+    }
+
+    while(true) sleep(1);
+
+}
+
+*/
