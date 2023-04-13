@@ -2,4 +2,4 @@
 
 ps -aL |   # L选项查看线程
 head -1 && ps -aL |
-grep myThread
+grep testThread
