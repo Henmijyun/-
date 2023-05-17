@@ -1,5 +1,6 @@
 #include <iostream>
 #include <functional>
+#include "log.hpp"
 
 typedef std::function<int(int, int)> func_t;
 
@@ -15,9 +16,12 @@ public:
         ,_func(func)
     {}
 
-    int operator()()
+    void operator()(const std::string& name)
     {
-        return _func(_x, _y);
+        // std::cout << "线程 " << name << "处理完成, 结果是: " << _x << "+" << _y << "=" << _func(_x, _y) << std::endl;
+        logMessage(WARNING, "%s %d+%d=%d | %s | %d", 
+        name.c_str(), _x, _y, _func(_x, _y), __FILE__, __LINE__);
+        // __FILE__, __LINE__  预处理符
     }
     
 public:

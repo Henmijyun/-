@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include "lockGuard.hpp"
 #include "thread.hpp"
+#include "log.hpp"
 
 const int g_thread_num = 3;
 
@@ -28,7 +29,7 @@ public:
 
     void waitCond()
     {
-        pthread_cond_wait(&_cond, )
+        pthread_cond_wait(&_cond, &_lock);
     }
 
     T getTask()
@@ -57,7 +58,8 @@ public:
         for (auto &iter : _threads)
         {
             iter->start();
-            std::cout << iter->name() << " 启动成功" << std::endl;
+            //std::cout << iter->name() << " 启动成功" << std::endl;
+            logMessage(NORMAL, "%s %s", iter->name().c_str(), "启动成功");
         }
     }
 
@@ -81,7 +83,8 @@ public:
                 task = tp->getTask();  // 任务队列是共享的->把任务从共享，拿到私有空间
             }
             // 处理任务
-            task();
+            task(td->_name);
+
         }
     }
 
@@ -121,7 +124,17 @@ public:
 private:
     std::vector<Thread*> _threads;   // 储存线程
     int _num;                       // 线程数
-    std::queue<T> _task_queue;     // 环形队列(任务池)
+    std::queue<T> _task_queue;     // 任务队列
     pthread_mutex_t _lock;         // 锁 
-    pthread_cond_t _cond;           // 条件变量
+    pthread_cond_t _cond;          // 条件变量
+
+    // 优化方案：
+    //  queue1,queue2
+    //  std::queue<T> *p_queue, *c_queue
+    //  p_queue->queue1
+    //  c_queue->queue2
+    //  p_queue -> 生产一批任务之后，swap(p_queue,c_queue),唤醒所有线程/一个线程
+    //  当消费者处理完毕的时候，你也可以进行swap(p_queue,c_queue)
+    //  因为我们生产和消费用的是不同的队列，未来我们要进行资源的处理的时候，仅仅是指针
+
 };
