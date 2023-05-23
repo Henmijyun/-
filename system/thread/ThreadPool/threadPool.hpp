@@ -39,7 +39,7 @@ public:
         return t;
     }
 
-public:
+private:
     ThreadPool(int thread_num = g_thread_num)
         :_num(thread_num)
     {
@@ -51,6 +51,30 @@ public:
             // 创建线程
             _threads.push_back(new Thread(i, routine, this));
         }
+    }
+
+    ThreadPool(const ThreadPool<T>& other) = delete;
+    ThreadPool<T>& operator=(const ThreadPool<T>& other) = delete;
+
+public:
+    // 多线程使用单例的过程
+    static ThreadPool<T> *getThreadPool(int num = g_thread_num)
+    {
+        // 有效减少加锁检测的问题
+        // 拦截大量的在已经创建好单例的时候，剩余线程请求单例的而直接访问锁的行为
+        if (nullptr == _thread_ptr) 
+        {
+            lockGuard lockguard(&_mutex);
+            // 任何一个线程想获取单例，都必须调用getThreadPool接口
+            // 但是，大量的申请和释放锁的行为，是无用且浪费资源的
+            // pthread_mutex_lock(&_mutex);
+            if (nullptr == _thread_ptr)
+            {
+                _thread_ptr = new ThreadPool<T>(num);
+            }
+            // pthread_mutex_unlock(&_mutex);
+        }
+        return _thread_ptr;
     }
 
     void run()
@@ -128,6 +152,9 @@ private:
     pthread_mutex_t _lock;         // 锁 
     pthread_cond_t _cond;          // 条件变量
 
+    static ThreadPool<T>* _thread_ptr;  // 线程池的指针
+    static pthread_mutex_t _mutex;      // 单例模式的锁
+    
     // 优化方案：
     //  queue1,queue2
     //  std::queue<T> *p_queue, *c_queue
@@ -138,3 +165,9 @@ private:
     //  因为我们生产和消费用的是不同的队列，未来我们要进行资源的处理的时候，仅仅是指针
 
 };
+
+template <typename T>
+ThreadPool<T> *ThreadPool<T>::_thread_ptr = nullptr;
+
+template <typename T>
+pthread_mutex_t ThreadPool<T>::_mutex = PTHREAD_MUTEX_INITIALIZER;

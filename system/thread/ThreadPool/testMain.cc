@@ -12,8 +12,12 @@ int main()
 
     srand((unsigned long)time(nullptr) ^ getpid());  // 随机值种子
 
-    ThreadPool<Task>* tp = new ThreadPool<Task>();
-    tp->run();
+    // ThreadPool<Task>* tp = new ThreadPool<Task>();
+    // ThreadPool<Task> *tp = ThreadPool<Task>::getThreadPool(); 
+    // 单例本身在被多线程申请使用时
+    ThreadPool<Task>::getThreadPool()->run();
+    //thread1,2,3,4
+
 
     while (true)
     {
@@ -29,7 +33,7 @@ int main()
         logMessage(DEBUG, "制作任务完成: %d+%d=?", x, y);
 
         // 推送任务到线程池中
-        tp->pushTask(t);
+        ThreadPool<Task>::getThreadPool()->pushTask(t);
 
         sleep(1);
     }
