@@ -7,8 +7,14 @@
 #include <cstring>
 #include <cstdlib>
 #include <string>
+#include <strings.h>
+
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#define SIZE 1024
 
 class UdpServer
 {
@@ -31,10 +37,59 @@ public:
         }
 
         // 2.bind：将用户设置的ip和port在内核中和当前进程强关联
-        
+        // "192.168.1.3" -> 点分十进制字符串风格的IP地址
+        // 每一个点划分出来的区域范围是[0-255]:1字节 -> 4个区域
+        // 表示一个IP地址，4个字节就够了
+
+        struct sockaddr_in local;
+        bzero(&local, sizeof(local));    // 全部清零
+        local.sin_family = AF_INET;      // 匹配套接字的AF_INET
+        // 服务器IP和端口未来也是要发给对方主机的 -> 先要将数据发送到网络
+        local.sin_port = htons(_port);   // 主机序列 转 网络序列
+        // 1. 同上，点分十进制字符串风格的IP地址 -> 4字节
+        // 2. 4字节主机序列 -> 网络序列
+        local.sin_addr.s_addr = inet_addr(_ip.c_str());
+
+        if (bind(_sock, (const sockaddr*)&local, sizeof(local)) < 0)
+        {
+            logMessage(FATAL, "%d:%s", errno, strerror(errno));
+            exit(3);
+        }
+        logMessage(NORMAL, "init udp server done .. %s", strerror(errno));
+        // done
+    
     }
     void Start()
-    {}
+    {
+        // 网络服务器，永远不退出！
+        // 服务器启动 ->进程 -> 常驻进程 -> 永远在内存中存在
+        char buffer[SIZE];
+        for ( ; ; )
+        {
+            // 注意：
+            // peer，纯输出型参数
+            struct sockaddr_in peer;
+            bzero(&peer, sizeof(peer));
+
+            // len 是输入输出型参数
+            // 输入： peer 缓冲区大小
+            // 输出： 实际读到的peer大小
+            socklen_t len = sizeof(peer);
+            
+            // start.读取数据
+            ssize_t s = recvfrom(_sock, buffer, sizeof(buffer)-1, 0,
+             (struct sockaddr*)&peer, &len);
+            if (s > 0)
+            {
+                buffer[s] = 0;   // 暂时把数据当作字符串
+                // 1.输出发送的数据信息
+                // 2.是谁
+            }
+
+            // 分析和处理数据
+            // end.写回数据
+        }
+    }
 
     ~UdpServer()
     {}
