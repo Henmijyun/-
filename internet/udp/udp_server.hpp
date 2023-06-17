@@ -8,6 +8,8 @@
 #include <cstdlib>
 #include <string>
 #include <strings.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -19,7 +21,7 @@
 class UdpServer
 {
 public:
-    UdpServer(uint16_t port, std::string ip = "0.0.0.0")
+    UdpServer(uint16_t port, std::string ip = "")
         :_port(port)
         ,_ip(ip)
         ,_sock(-1)
@@ -29,7 +31,7 @@ public:
     {
         // 从这里开始，就是新的系统调用，来完成网络功能
         // 1.创建套接字
-        _sock = socket(AF_INET, SOCK_DGRAM, 0);
+        _sock = socket(AF_INET, SOCK_DGRAM, 0);   // AF_INET == PF_INET
         if (_sock < 0)
         {
             logMessage(FATAL, "%d:%s", errno, strerror(errno));
@@ -48,7 +50,7 @@ public:
         local.sin_port = htons(_port);   // 主机序列 转 网络序列
         // 1. 同上，点分十进制字符串风格的IP地址 -> 4字节
         // 2. 4字节主机序列 -> 网络序列
-        local.sin_addr.s_addr = inet_addr(_ip.c_str());
+        local.sin_addr.s_addr = _ip.empty() ? INADDR_ANY : inet_addr(_ip.c_str());  // 让服务器在工作过程中,可以从任意IP中获取数据
 
         if (bind(_sock, (const sockaddr*)&local, sizeof(local)) < 0)
         {
@@ -57,12 +59,14 @@ public:
         }
         logMessage(NORMAL, "init udp server done .. %s", strerror(errno));
         // done
-    
+
+        return true;
     }
     void Start()
     {
         // 网络服务器，永远不退出！
         // 服务器启动 ->进程 -> 常驻进程 -> 永远在内存中存在
+        // echo server: client给我们发送消息,我们原封不动返回
         char buffer[SIZE];
         for ( ; ; )
         {
@@ -77,22 +81,31 @@ public:
             socklen_t len = sizeof(peer);
             
             // start.读取数据
-            ssize_t s = recvfrom(_sock, buffer, sizeof(buffer)-1, 0,
-             (struct sockaddr*)&peer, &len);
+            ssize_t s = recvfrom(_sock, buffer, sizeof(buffer)-1, 0,(struct sockaddr*)&peer, &len);
             if (s > 0)
             {
                 buffer[s] = 0;   // 暂时把数据当作字符串
                 // 1.输出发送的数据信息
-                // 2.是谁
+                // 2.是谁?
+                uint16_t cli_port = ntohs(peer.sin_port);  // 从网络中来的 -> 转主机序列
+                std::string cli_ip = inet_ntoa(peer.sin_addr);  // 4字节的网络IP -> 本主机的字符串风格IP(方便显示)
+                
+                printf("[%s:%d]# %s\n", cli_ip.c_str(), cli_port, buffer);
             }
 
             // 分析和处理数据
             // end.写回数据
+            sendto(_sock, buffer, strlen(buffer), 0, (struct sockaddr*)&peer, len);
         }
     }
 
     ~UdpServer()
-    {}
+    {
+        if (_sock >= 0)
+        {
+            close(_sock);   // 关闭套接字
+        }
+    }
 private:
     // 一个服务器，一般必须需要IP地址和port(16位的整数)
     uint16_t _port;

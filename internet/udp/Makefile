@@ -1,3 +1,5 @@
+# 基于UDP协议,实现客户端client与服务器端server的实现
+
 .PHONY:all
 all:udp_client udp_server
 
