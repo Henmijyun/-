@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <string>
 #include <unordered_map>
+#include <queue>
 #include <strings.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -84,6 +85,7 @@ public:
             socklen_t len = sizeof(peer);
             
             char result[256];
+            char key[64];
             std::string cmd_echo;
 
             // start.读取数据
@@ -96,12 +98,14 @@ public:
                 uint16_t cli_port = ntohs(peer.sin_port);  // 从网络中来的 -> 转主机序列
                 std::string cli_ip = inet_ntoa(peer.sin_addr);  // 4字节的网络IP -> 本主机的字符串风格IP(方便显示)
                 
-                char key[64];
-                snprintf(key, sizeof(key), "%s-%u", cli_ip.c_str(), cli_port);  // 127.0.0.1-8080
+                snprintf(key, sizeof(key), "%s-%u", cli_ip.c_str(), cli_port);  // 把127.0.0.1-8080写入key
+                logMessage(NORMAL, "key : %s", key);
+
                 auto it = _users.find(key);
                 if (it == _users.end())
                 {
                     // 新用户，需要插入
+                    logMessage(NORMAL, "add new user : %s", key);
                     _users.insert({key, peer});
                 }   
             }
@@ -111,8 +115,12 @@ public:
 
             for (auto &iter : _users)
             {
-                sendto(_sock, buffer, strlen(buffer), 0, 
-                (struct sockaddr*)&iter.second, sizeof(iter.second));
+                std::string sendMessage = key;
+                sendMessage += "# ";
+                sendMessage += buffer;  // 127.0.0.1-8080# 你好
+                logMessage(NORMAL, "push message to %s", iter.first.c_str());
+                sendto(_sock, sendMessage.c_str(), sendMessage.size(), 0, 
+                (struct sockaddr*)&iter.second, sizeof(iter.second));    // 向所有用户派发数据
             }
         
         }
@@ -131,6 +139,11 @@ private:
     std::string _ip;
     int _sock;         // 套接字 (文件描述符)
     std::unordered_map<std::string, struct sockaddr_in> _users;     // 所有用户
+
+    // std::queue<std::string> messageQueue;   
+    // 可优化：
+    // 可以设计成多线程版本，一个线程接收队列，一个线程从队列取数据 （生产者消费者模型）
+    // 多用户同时发消息到服务器时，减少阻塞时间
 };
 
 #endif

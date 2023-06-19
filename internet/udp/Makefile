@@ -9,7 +9,9 @@ udp_client:udp_client.cc
 udp_server:udp_server.cc
 	g++ -std=c++11 udp_server.cc -o udp_server -lpthread
 
-.PHONY:clean
+.PHONY:clean clientAB
 clean:
-	rm -rf udp_server udp_client
-	
+	rm -rf udp_server udp_client  clientA clientB
+
+clientAB:
+	mkfifo clientA clientB
