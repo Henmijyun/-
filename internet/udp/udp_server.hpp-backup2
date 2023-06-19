@@ -1,4 +1,4 @@
-// 客户端向服务器发送消息，服务器向所有客户端派发消息（群聊）
+// 客户端向服务器发送指令，操控服务器运行指令
 
 #ifndef __UDP_SERVER_HPP__
 #define __UDP_SERVER_HPP__
@@ -9,7 +9,6 @@
 #include <cstring>
 #include <cstdlib>
 #include <string>
-#include <unordered_map>
 #include <strings.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -93,27 +92,48 @@ public:
                 buffer[s] = 0;   // 暂时把数据当作字符串
                 // 1.输出发送的数据信息
                 // 2.是谁?
-                uint16_t cli_port = ntohs(peer.sin_port);  // 从网络中来的 -> 转主机序列
-                std::string cli_ip = inet_ntoa(peer.sin_addr);  // 4字节的网络IP -> 本主机的字符串风格IP(方便显示)
-                
-                char key[64];
-                snprintf(key, sizeof(key), "%s-%u", cli_ip.c_str(), cli_port);  // 127.0.0.1-8080
-                auto it = _users.find(key);
-                if (it == _users.end())
+                // uint16_t cli_port = ntohs(peer.sin_port);  // 从网络中来的 -> 转主机序列
+                // std::string cli_ip = inet_ntoa(peer.sin_addr);  // 4字节的网络IP -> 本主机的字符串风格IP(方便显示)
+                // printf("[%s:%d]# %s\n", cli_ip.c_str(), cli_port, buffer);
+
+                // 如果发过来的是 ls -a -l 这样的指令  rm -rm ~
+                if (strcasestr(buffer, "rm") != nullptr || 
+                strcasestr(buffer, "rmdir") != nullptr || 
+                strcasestr(buffer, "sudo") != nullptr ||
+                strcasestr(buffer, "su") != nullptr ||
+                strcasestr(buffer, "passwd") != nullptr)
                 {
-                    // 新用户，需要插入
-                    _users.insert({key, peer});
-                }   
+                    std::string err_message = "WARNING!!!";
+                    std::cout << "badman..: " << buffer << std::endl;
+                    sendto(_sock, err_message.c_str(), err_message.size(), 0, (struct sockaddr*)&peer, len);
+                    continue;
+                }
+
+                FILE* fp = popen(buffer, "r");
+                if (nullptr == fp)
+                {
+                    logMessage(ERROR, "popen: %d:%s", errno, strerror(errno));
+                    continue;
+                }
+                
+                while (fgets(result, sizeof(result), fp) != nullptr)   // 按行，从流读到缓冲区
+                {
+                    cmd_echo += result; 
+                }
+
+                // if (feof(fp))  // 是否读到文件结尾
+                // {
+                //     std::cout << "We have reached the end of file!" << std::endl;  
+                // }
+                
+                fclose(fp);
             }
 
             // 分析和处理数据
             // end.写回数据
-
-            for (auto &iter : _users)
-            {
-                sendto(_sock, buffer, strlen(buffer), 0, 
-                (struct sockaddr*)&iter.second, sizeof(iter.second));
-            }
+            // sendto(_sock, buffer, strlen(buffer), 0, (struct sockaddr*)&peer, len);
+            
+            sendto(_sock, cmd_echo.c_str(), cmd_echo.size(), 0, (struct sockaddr*)&peer, len);
         
         }
     }
@@ -130,7 +150,7 @@ private:
     uint16_t _port;
     std::string _ip;
     int _sock;         // 套接字 (文件描述符)
-    std::unordered_map<std::string, struct sockaddr_in> _users;     // 所有用户
+
 };
 
 #endif

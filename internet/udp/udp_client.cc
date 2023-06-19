@@ -1,3 +1,4 @@
+// 单线程版本
 
 #include <iostream>
 #include <string>
@@ -38,7 +39,7 @@ int main(int argc, char* argv[])
     server.sin_port = htons(atoi(argv[2]));     // 端口号 -> 字符串 -> 整数 -> 网络
     server.sin_addr.s_addr = inet_addr(argv[1]);   // 字符串 转 IP序列
 
-    char* buffer[1024];
+    char buffer[1024];
     while (true)
     {
         std::cout << "请输入你的信息# ";
