@@ -50,7 +50,7 @@ void logMessage(int level, const char* format, ...)
     va_end(args);
 
 
-    // FILE* fp = fopen(LOGFILE, "a");     // 打开文件流
+    // FILE* fp = fopen(LOGFILE, "a");
     printf("%s%s\n", stdBuffer, logBuffer);    // 日志打印到屏幕
     // fprintf(fp, "%s%s\n", stdBuffer, logBuffer);  // 日志写入文件
     // fclose(fp);
