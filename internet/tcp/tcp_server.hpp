@@ -9,6 +9,9 @@
 #include <cstring>
 #include <cassert>
 #include <memory>
+#include<unordered_map>
+
+#include <ctype.h>
 #include <signal.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -59,62 +62,106 @@ static void service(int sock, const std::string& client_ip,\
     close(sock);
 }
 
-// static void service(int sock, const std::string& client_ip, const uint16_t& client_port)
-// {
-//     // echo server
-//     char buffer[1024];
-//     while (true)
-//     {
-//         // read && write 可以直接被使用
-//         ssize_t s = read(sock, buffer, sizeof(buffer)-1);
-//         if (s > 0)  // 读取成功
-//         {
-//             buffer[s] = 0;  //将发过来的数据当做字符串
-//             std::cout << client_ip << ":" << client_port << "# " << buffer << std::endl;
-//         }
-//         else if(s == 0)   // 对端关闭连接
-//         {
-//             logMessage(NORMAL, "%s:%d shutdown, me too!", client_ip.c_str(), client_port);
-//             break;
-//         }
-//         else   // 读取套接字失败
-//         {
-//             logMessage(ERROR, "read socket error, %d:%s", errno, strerror(errno));
-//             break;
-//         }
+// 小写转大写的服务
+static void change(int sock, const std::string& client_ip,\
+        const uint16_t& client_port, const std::string& thread_name)
+{
+    // echo server
+    char buffer[1024];
 
-//         // 读取成功, 发回去
-//         write(sock, buffer, strlen(buffer));
-//     }
-//     close(sock);
-// }
+    // read && write 可以直接被使用
+    ssize_t s = read(sock, buffer, sizeof(buffer)-1);
+    if (s > 0)  // 读取成功
+    {
+        buffer[s] = 0;  //将发过来的数据当做字符串
+        std::cout << thread_name << "|" << client_ip << ":" << client_port << "# " << buffer << std::endl;
+        
+        // 转大写服务  a -> A
+        std::string message;
+        char* start = buffer;
+        while (*start)
+        {
+            char c;
+            if (islower(*start)) 
+            {
+                c = toupper(*start);
+            }
+            else
+            {
+                c = *start;
+            }
+            message.push_back(c);
+            start++;
+        }
 
-// class ThreadData
-// {
-// public:
-//     int _sock;
-//     std::string _ip;
-//     uint16_t _port;
-// };
+        // 读取成功, 发回去
+        write(sock, message.c_str(), message.size());
+    }
+    else if(s == 0)   // 对端关闭连接
+    {
+        logMessage(NORMAL, "%s:%d shutdown, me too!", client_ip.c_str(), client_port);
+    }
+    else   // 读取套接字失败
+    {
+        logMessage(ERROR, "read socket error, %d:%s", errno, strerror(errno));
+    }
+
+    close(sock);
+}
+
+// 英汉互译的服务
+static void dictOnline(int sock, const std::string& client_ip,\
+        const uint16_t& client_port, const std::string& thread_name)
+{
+    // echo server
+    char buffer[1024];
+    static std::unordered_map<std::string, std::string> dict = {
+        {"apple", "苹果"},
+        {"banana", "香蕉"},
+        {"hard", "好难"}
+    };
+
+    // read && write 可以直接被使用
+    ssize_t s = read(sock, buffer, sizeof(buffer)-1);
+    if (s > 0)  // 读取成功
+    {
+        buffer[s] = 0;  //将发过来的数据当做字符串
+        std::cout << thread_name << "|" << client_ip << ":" << client_port << "# " << buffer << std::endl;
+        
+        // 查找
+        std::string message;
+        auto iter = dict.find(buffer);
+        if (iter == dict.end())
+        {
+            message = "我不知道..";
+        }
+        else
+        {
+            message = iter->second;
+        }
+
+        // 读取成功, 发回去
+        write(sock, message.c_str(), message.size());
+    }
+    else if(s == 0)   // 对端关闭连接
+    {
+        logMessage(NORMAL, "%s:%d shutdown, me too!", client_ip.c_str(), client_port);
+    }
+    else   // 读取套接字失败
+    {
+        logMessage(ERROR, "read socket error, %d:%s", errno, strerror(errno));
+    }
+
+    close(sock);
+}
 
 class TcpServer
 {
 public:
     const static int gbacklog = 20; 
-    
-    // static void* threadRoutine(void* args)    // 类内成员函数要加static
-    // {
-    //     pthread_detach(pthread_self());  // 线程分离
-    //     ThreadData* td = static_cast<ThreadData*>(args);   // 类型强转
-    //     service(td->_sock, td->_ip, td->_port);   // 服务
-        
-    //     delete td;
-
-    //     return nullptr;
-    // } 
 
 public:
-    TcpServer(uint16_t port, std::string ip = "")
+    TcpServer(uint16_t port, std::string ip = "0.0.0.0")
         :_port(port)
         ,_ip(ip)
         ,_listensock(-1)
@@ -138,7 +185,9 @@ public:
         memset(&local, 0, sizeof(local));
         local.sin_family = AF_INET;      // 填充第一个字段为AF_INET
         local.sin_port = htons(_port);   // 主机序列 转 网络序列
-        local.sin_addr.s_addr = _ip.empty() ? INADDR_ANY : inet_addr(_ip.c_str());  // 点分十进制字符串IP地址 -> 4字节主机序列 -> 网络序列
+        inet_pton(AF_INET, _ip.c_str(), &local.sin_addr);  // 同下
+        // inet_aton(_ip.c_str(), &local.sin_addr);  // 同下
+        // local.sin_addr.s_addr = _ip.empty() ? INADDR_ANY : inet_addr(_ip.c_str());  // 点分十进制字符串IP地址 -> 4字节主机序列 -> 网络序列
         
         if (bind(_listensock, (struct sockaddr*)&local, sizeof(local)) < 0)
         {
@@ -162,7 +211,7 @@ public:
 
     void Start()  // 运行
     {
-        _threadpool_ptr->run();
+        _threadpool_ptr->run(); 
         while (true)
         {
             // sleep(1);
@@ -190,7 +239,9 @@ public:
             // version 3.0 -- 多线程版 -- 线程分离，每个线程独立服务
 
             // version 4.0 -- 线程池版 -- 线程池向每个线程派发服务
-            Task t(servicesock, client_ip, client_port, service);
+            // Task t(servicesock, client_ip, client_port, service);  // 通信服务
+            // Task t(servicesock, client_ip, client_port, change);   // 大小写转换服务
+            Task t(servicesock, client_ip, client_port, dictOnline);   // 英汉转换服务
             _threadpool_ptr->pushTask(t);   // 任务插入到线程队列
 
         }
