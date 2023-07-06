@@ -109,6 +109,25 @@ public:
         return servicesock;
     }
 
+    // 连接
+    bool Connect(int sock, const std::string& server_ip, const uint16_t& server_port)
+    {
+        struct sockaddr_in server;
+        memset(&server, 0, sizeof(server));
+        server.sin_family = AF_INET;
+        server.sin_port = htons(server_port);
+        server.sin_addr.s_addr = inet_addr(server_ip.c_str());
+
+        // 连接
+        if (connect(sock, (struct sockaddr*)&server, sizeof(server)) == 0)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     ~Sock()
     {}

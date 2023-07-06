@@ -70,7 +70,8 @@ void calculator(int sock)
         Request req;
         req.Deserialized(str);   // 反序列化 （从字符串中提取数据）
         Response resp = calculatorHelp(req);  // 计算
-
+        std::string respString = resp.Serialize();  // 对计算结果进行序列化
+        Send(sock, respString);  // 发送数据
     }
 }
 
@@ -84,7 +85,20 @@ int main(int argc, char* argv[])
     }
 
     std::unique_ptr<TcpServer> server(new TcpServer(atoi(argv[1])));
-    server->BindService(debug);
+    server->BindService(calculator);
     server->Start();
+
+
+    // Request req(10, 5, '+');
+    // std::string s = req.Serialize();  // 序列化
+    // std::cout << s <<std::endl;
+
+    // Request temp;
+    // temp.Deserialized(s);   // 反序列化
+    // std::cout << temp._x << std::endl;
+    // std::cout << temp._op << std::endl;
+    // std::cout << temp._y << std::endl;
+
+
     return 0;
 }
