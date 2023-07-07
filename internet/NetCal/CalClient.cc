@@ -31,7 +31,15 @@ int main(int argc, char* argv[])
     
     while (true)
     {
-        Request req(10, 20, '*');
+        // Request req(10, 20, '*');
+        Request req;
+        std::cout << "Please Enter x# ";
+        std::cin >> req._x;
+        std::cout << "Please Enter y# ";
+        std::cin >>req._y;
+        std::cout << "Please Enter op# ";
+        std::cin >>req._op;
+
         std::string s = req.Serialize();  // 序列化
         //std::cout << "s:" << s << std::endl;
         Send(sockfd, s);  // 发送

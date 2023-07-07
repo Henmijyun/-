@@ -12,11 +12,14 @@ namespace skk_protocol
 #define SPACE " "
 #define SPACE_LEN strlen(SPACE)
 
+#define SEP "\r\n"
+#define SEP_LEN strlen(SEP)   // 不能是sizeof！(不包含\0) 
+
     // 请求
     class Request
     {
     public:
-        // 1.自主实现 
+        // 1.自主实现   "length\r\n_x _op _y\r\n"
         // 2.使用现成的方案
 
         // 序列化   数据转字符串 "_x _op _y"
@@ -86,12 +89,15 @@ namespace skk_protocol
         ~Request(){}
         
     public:
-        int _x;
-        int _y;
+        // 约定
+        int _x;   
+        int _y;    
         char _op;  // '+' '-' '*' '/' '%'  
     };
 
-    // 回复
+
+
+    // 回复/响应
     class Response
     {
     public:
@@ -142,27 +148,81 @@ namespace skk_protocol
 
         ~Response(){}
     public:
-        int _result;  // 计算结果 
-        int _code;    // 计算结果的状态码
+        int _result;  // 计算结果  
+        int _code;    // 计算结果的状态码  0正确
     };
 
     // 读请求  (临时方案)
-    std::string Recv(int sock)
+    // 调整方案2：必须返回一个完整的报文
+    bool Recv(int sock, std::string* out)
     {
-        char inbuffer[1024];
-        ssize_t s = recv(sock, inbuffer, sizeof(inbuffer), 0);
+        // UDP 面向数据报 -- 发一个收一个
+        // TCP 面向字节流 -- 发多次，收的时候一次性收完
+        // recv: 怎么保证读到的inbuffer是一个完整完善的请求呢？
+        // 发"_x _op _y" --> 可能收 "_x _o"  "p _y"
+        char buffer[1024];
+        ssize_t s = recv(sock, buffer, sizeof(buffer)-1, 0);
         if (s > 0)
         {
-            return inbuffer;
+            buffer[s] = 0;
+            *out += buffer;
         }
+        else if(s == 0)
+        {
+            // 客户端被关闭了
+            std::cout << "client quit" << std::endl;
+            return false;
+        }
+        else
+        {
+            // 读取错误
+            std::cout << "recv error" << std::endl;
+            return false;
+        }
+        
+        return true;
+        
     }
 
     // 发送数据
     void Send(int sock, const std::string str)
     {
-        send(sock, str.c_str(), str.size(), 0);
+        std::cout << "send in" << std::endl;
+        int n = send(sock, str.c_str(), str.size(), 0);
+        if (n < 0)
+        {
+            std::cout << "send error" << std::endl;
+        }
     }
 
+    // 协议解析，保证得到一个完整的报文
+    // "length\r\n_x _op _y\r\n"
+    std::string Decode(std::string& buffer)
+    {
+        std::size_t pos = buffer.find(SEP);
+        if (pos == std::string::npos)
+        {
+            return "";  // 返回空串
+        }
+        int size = atoi(buffer.substr(0, pos).c_str());   // length数据，字符串转int
+
+        int surplus_size = buffer.size() - pos - (2 * SEP_LEN);  // 剩余内容的size
+        if (surplus_size >= size)
+        {
+            // 至少具有一个合法完整的报文，可以提取了
+            buffer.erase(0, pos + SEP_LEN);          // 删除开头的 "length\r\n"
+            std::string s = buffer.substr(0, size);   // 截取"_x _op _y"
+            buffer.erase(0, size + SEP_LEN);        // 删除 "_x _op _y\r\n"
+            return s;
+        }
+        else
+        {
+            return "";  // 返回空串
+        }
+    }
+
+    void EnCode(std::string str)
+    {}
 
 }
 
