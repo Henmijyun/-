@@ -1,0 +1,15 @@
+[NORMAL] [1688906332]create socket success, _listensock: 3
+[NORMAL] [1688906332]init server success
+[NORMAL] [1688906339]create socket success, _listensock: 3
+[NORMAL] [1688906339]create new link success, sock: 4
+[NORMAL] [1688906340]1 + 1
+[NORMAL] [1688906392]10 * 50
+[NORMAL] [1688919170]create socket success, _listensock: 3
+[NORMAL] [1688919170]init server success
+[NORMAL] [1688919178]create socket success, _listensock: 3
+[NORMAL] [1688919178]create new link success, sock: 4
+[NORMAL] [1688919181]1 + 1
+[NORMAL] [1688919184]5 + 5
+[NORMAL] [1688919190]2 + 2
+[NORMAL] [1688919192]3 + 3
+[NORMAL] [1688919194]4 + 4

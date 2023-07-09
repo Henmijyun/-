@@ -29,32 +29,74 @@ int main(int argc, char* argv[])
         exit(2);
     }
     
-    while (true)
+    bool quit = false;
+    std::string buffer;
+    
+    while (!quit)
     {
         // Request req(10, 20, '*');
+        // 1.获取需求
         Request req;
-        std::cout << "Please Enter x# ";
-        std::cin >> req._x;
-        std::cout << "Please Enter y# ";
-        std::cin >>req._y;
-        std::cout << "Please Enter op# ";
-        std::cin >>req._op;
+        std::cout << "Please Enter # ";
+        std::cin >> req._x >> req._op >> req._y;
 
+        // 2.序列化
         std::string s = req.Serialize();  // 序列化
-        //std::cout << "s:" << s << std::endl;
+        std::string temp = s;
+        
+        // 3.添加长度报头
+        s = Encode(s);
+
+        // 4.发送给服务端
         Send(sockfd, s);  // 发送
 
-        std::string r = Recv(sockfd);  // 读
-        //std::cout << "r:" << r << std::endl;
+        // 5.正常读取
+        while (true)
+        {
+            bool res = Recv(sockfd, &buffer);  // 读
+            if (!res)
+            {
+                // 读取失败
+                quit = true;
+                break;
+            }
+            std::string package = Decode(buffer);  // 解析/删除 报头
+            if (package.empty())
+            {
+                // 空(不完整报文)
+                continue;
+            }
+            
+            Response resp;
+            resp.Deserialized(package);   // 反序列化
+            std::string err;
+            switch(resp._code)
+            {
+            case 1:
+                err = "除0错误"; 
+                break;
+            case 2:
+                err = "模0错误"; 
+                break;
+            case 3:
+                err = "非法操作"; 
+                break;
+            default:
+                std::cout << temp << " = " << resp._result << " [success]" << std::endl;                
+                break;            
+            }
 
-        Response resp;
-        resp.Deserialized(r);   // 反序列化
-        
-        std::cout << "code: " << resp._code << std::endl;
-        std::cout << "result: " << resp._result << std::endl;
-        
-        sleep(1);
+            if (!err.empty())
+            {
+                std::cerr << err << std::endl;
+            }
+            // sleep(1);
+            break;
+        }
+
     }
+    
+    close(sockfd);
 
     return 0;
 }

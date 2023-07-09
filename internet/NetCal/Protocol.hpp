@@ -20,7 +20,7 @@ namespace skk_protocol
     {
     public:
         // 1.自主实现   "length\r\n_x _op _y\r\n"
-        // 2.使用现成的方案
+        // 2.使用现成的方案  json
 
         // 序列化   数据转字符串 "_x _op _y"
         std::string Serialize()
@@ -170,13 +170,13 @@ namespace skk_protocol
         else if(s == 0)
         {
             // 客户端被关闭了
-            std::cout << "client quit" << std::endl;
+            // std::cout << "client quit" << std::endl;
             return false;
         }
         else
         {
             // 读取错误
-            std::cout << "recv error" << std::endl;
+            // std::cout << "recv error" << std::endl;
             return false;
         }
         
@@ -187,7 +187,7 @@ namespace skk_protocol
     // 发送数据
     void Send(int sock, const std::string str)
     {
-        std::cout << "send in" << std::endl;
+        //std::cout << "send in" << std::endl;
         int n = send(sock, str.c_str(), str.size(), 0);
         if (n < 0)
         {
@@ -221,8 +221,17 @@ namespace skk_protocol
         }
     }
 
-    void EnCode(std::string str)
-    {}
+    // 添加协议结构
+    // "XXXXX"
+    // "lenth\r\nXXXXX\r\n"
+    std::string Encode(std::string& s)
+    {
+        std::string new_package = std::to_string(s.size());
+        new_package += SEP;
+        new_package += s;
+        new_package += SEP;
+        return new_package;
+    }
 
 }
 
