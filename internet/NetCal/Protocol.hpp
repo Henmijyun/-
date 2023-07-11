@@ -4,11 +4,13 @@
 
 #include <iostream>
 #include <cstring>
+#include <jsoncpp/json/json.h>
 
 
 namespace skk_protocol
 {
-#define MYSELF 1
+// #define MYSELF 1
+
 #define SPACE " "
 #define SPACE_LEN strlen(SPACE)
 
@@ -34,7 +36,14 @@ namespace skk_protocol
             str += std::to_string(_y);
             return str;
 #else
-            std::cout << "TODO" << std::endl;
+            Json::Value root;   // 万能对象
+            root["x"] = _x;
+            root["y"] = _y;
+            root["op"] = _op;
+            Json::FastWriter writer;
+
+            return writer.write(root);   // 返回序列化后的string
+
 #endif
         }
 
@@ -65,7 +74,14 @@ namespace skk_protocol
             }
             return true;
 #else
-            std::cout << "TODO" << std::endl;
+            Json::Value root;
+            Json::Reader reader;
+            reader.parse(str, root);   // 反序列化写到root中
+            _x = root["x"].asInt();   // 以int类型，把x的数据写到_x
+            _y = root["y"].asInt();
+            _op = root["op"].asInt();   // 以 ASCII码传入的，所以转int就行
+            
+            return true; 
 #endif        
         }
 
@@ -111,7 +127,17 @@ namespace skk_protocol
             str += std::to_string(_result);
             return str;
 #else
-            std::cout << "TODO" << std::endl;
+            Json::Value root;
+            root["code"] = _code;
+            root["result"] = _result;
+            root["xx"] = _x;
+            root["yy"] = _y;
+            root["zz"] = _op;
+
+            Json::FastWriter writer;
+            
+            return writer.write(root);  // 返回序列化后的string
+
 #endif              
         }
 
@@ -133,7 +159,16 @@ namespace skk_protocol
 
             return true;
 #else
-            std::cout << "TODO" << std::endl;
+            Json::Value root;
+            Json::Reader reader;
+            reader.parse(str, root);     // 反序列化写到root中
+            _code = root["code"].asInt();   // 以int类型，写入数据
+            _result = root["result"].asInt();
+            _x = root["xx"].asInt();
+            _y = root["yy"].asInt();
+            _op = root["zz"].asInt();
+   
+            return true; 
 #endif                          
         }
 
@@ -141,15 +176,22 @@ namespace skk_protocol
         Response()
         {}
 
-        Response(int result, int code)
+        Response(int result, int code, int x, int y, char op)
             :_result(result)
             ,_code(code)
+            ,_x(x)
+            ,_y(y)
+            ,_op(op)
         {}
 
         ~Response(){}
     public:
         int _result;  // 计算结果  
         int _code;    // 计算结果的状态码  0正确
+
+        int _x;
+        int _y;
+        int _op;
     };
 
     // 读请求  (临时方案)

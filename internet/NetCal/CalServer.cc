@@ -25,7 +25,7 @@ void debug(int sock)
 // 计算
 static Response calculatorHelp(const Request& req)
 {
-    Response resp(0, 0);
+    Response resp(0, 0, req._x, req._y, req._op);
     switch (req._op)
     {
     case '+':

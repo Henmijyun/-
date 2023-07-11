@@ -13,3 +13,125 @@
 [NORMAL] [1688919190]2 + 2
 [NORMAL] [1688919192]3 + 3
 [NORMAL] [1688919194]4 + 4
+[NORMAL] [1689002897]create socket success, _listensock: 3
+[NORMAL] [1689002897]init server success
+[NORMAL] [1689002945]create socket success, _listensock: 3
+[NORMAL] [1689002945]create new link success, sock: 4
+[NORMAL] [1689002948]1 + 1
+[NORMAL] [1689002953]5 * 46546
+[NORMAL] [1689002994]78 / 456
+[NORMAL] [1689005223]create new link success, sock: 5
+[NORMAL] [1689006409]create new link success, sock: 4
+[NORMAL] [1689006651]create new link success, sock: 5
+[NORMAL] [1689008684]create new link success, sock: 4
+[NORMAL] [1689009992]create new link success, sock: 5
+[NORMAL] [1689012877]create new link success, sock: 4
+[NORMAL] [1689015294]create new link success, sock: 5
+[NORMAL] [1689018850]create new link success, sock: 4
+[NORMAL] [1689019302]create new link success, sock: 5
+[NORMAL] [1689019310]create new link success, sock: 4
+[NORMAL] [1689019322]create new link success, sock: 5
+[NORMAL] [1689019335]create new link success, sock: 4
+[NORMAL] [1689019347]create new link success, sock: 5
+[NORMAL] [1689019359]create new link success, sock: 4
+[NORMAL] [1689019372]create new link success, sock: 5
+[NORMAL] [1689019384]create new link success, sock: 4
+[NORMAL] [1689019396]create new link success, sock: 5
+[NORMAL] [1689019409]create new link success, sock: 4
+[NORMAL] [1689019421]create new link success, sock: 5
+[NORMAL] [1689019433]create new link success, sock: 4
+[NORMAL] [1689019446]create new link success, sock: 5
+[NORMAL] [1689019458]create new link success, sock: 4
+[NORMAL] [1689019470]create new link success, sock: 5
+[NORMAL] [1689019483]create new link success, sock: 4
+[NORMAL] [1689019495]create new link success, sock: 5
+[NORMAL] [1689019507]create new link success, sock: 4
+[NORMAL] [1689019520]create new link success, sock: 5
+[NORMAL] [1689019532]create new link success, sock: 4
+[NORMAL] [1689019544]create new link success, sock: 5
+[NORMAL] [1689019557]create new link success, sock: 4
+[NORMAL] [1689021515]create new link success, sock: 5
+[NORMAL] [1689022356]create new link success, sock: 4
+[NORMAL] [1689024584]create new link success, sock: 5
+[NORMAL] [1689028166]create new link success, sock: 4
+[NORMAL] [1689029583]create new link success, sock: 5
+[NORMAL] [1689031673]create new link success, sock: 4
+[NORMAL] [1689032551]create new link success, sock: 5
+[NORMAL] [1689034791]create new link success, sock: 4
+[NORMAL] [1689035832]create new link success, sock: 5
+[NORMAL] [1689037523]create new link success, sock: 4
+[NORMAL] [1689039620]create new link success, sock: 5
+[NORMAL] [1689040420]create new link success, sock: 4
+[NORMAL] [1689043556]create new link success, sock: 5
+[NORMAL] [1689043591]create new link success, sock: 4
+[NORMAL] [1689043609]create new link success, sock: 5
+[NORMAL] [1689043624]create new link success, sock: 4
+[NORMAL] [1689043633]create new link success, sock: 5
+[NORMAL] [1689043640]create new link success, sock: 4
+[NORMAL] [1689043655]create new link success, sock: 6
+[NORMAL] [1689043670]create new link success, sock: 4
+[NORMAL] [1689043688]create new link success, sock: 5
+[NORMAL] [1689043707]create new link success, sock: 4
+[NORMAL] [1689043726]create new link success, sock: 5
+[NORMAL] [1689043744]create new link success, sock: 4
+[NORMAL] [1689043762]create new link success, sock: 5
+[NORMAL] [1689043781]create new link success, sock: 4
+[NORMAL] [1689043799]create new link success, sock: 5
+[NORMAL] [1689043805]create new link success, sock: 4
+[NORMAL] [1689043820]create new link success, sock: 5
+[NORMAL] [1689044061]create new link success, sock: 4
+[NORMAL] [1689045201]create new link success, sock: 5
+[NORMAL] [1689048822]create new link success, sock: 4
+[NORMAL] [1689051369]create new link success, sock: 5
+[NORMAL] [1689051474]create new link success, sock: 4
+[NORMAL] [1689052007]create new link success, sock: 5
+[NORMAL] [1689054262]create new link success, sock: 4
+[NORMAL] [1689056958]create new link success, sock: 5
+[NORMAL] [1689058244]create new link success, sock: 4
+[NORMAL] [1689060105]create new link success, sock: 5
+[NORMAL] [1689062170]create new link success, sock: 4
+[NORMAL] [1689062309]create new link success, sock: 5
+[NORMAL] [1689065787]create new link success, sock: 4
+[NORMAL] [1689066305]create new link success, sock: 5
+[NORMAL] [1689066305]create new link success, sock: 4
+[NORMAL] [1689066842]create new link success, sock: 5
+[NORMAL] [1689068322]create new link success, sock: 4
+[NORMAL] [1689072339]create new link success, sock: 5
+[NORMAL] [1689072492]create new link success, sock: 4
+[NORMAL] [1689076990]create new link success, sock: 5
+[NORMAL] [1689078262]create socket success, _listensock: 3
+[NORMAL] [1689078262]init server success
+[NORMAL] [1689078458]create socket success, _listensock: 3
+[NORMAL] [1689078458]init server success
+[NORMAL] [1689078974]create socket success, _listensock: 3
+[NORMAL] [1689078974]create new link success, sock: 4
+[NORMAL] [1689078980]{"op":43,"x":1,"y":1}
+
+[NORMAL] [1689078991]{"op":42,"x":5,"y":12}
+
+[NORMAL] [1689079493]{"op":47,"x":255,"y":0}
+
+[NORMAL] [1689079879]create new link success, sock: 5
+[NORMAL] [1689079895]create new link success, sock: 4
+[NORMAL] [1689080313]create socket success, _listensock: 3
+[NORMAL] [1689080313]init server success
+[NORMAL] [1689080323]create socket success, _listensock: 3
+[NORMAL] [1689080323]create new link success, sock: 4
+[NORMAL] [1689080330]{"op":42,"x":12,"y":12}
+
+[NORMAL] [1689080498]{"op":43,"x":2,"y":2}
+
+[NORMAL] [1689080592]create socket success, _listensock: 3
+[FATAL] [1689080592]bind error, 98:Address already in use
+[NORMAL] [1689080604]create socket success, _listensock: 3
+[FATAL] [1689080604]bind error, 98:Address already in use
+[NORMAL] [1689080628]create socket success, _listensock: 3
+[NORMAL] [1689080628]init server success
+[NORMAL] [1689080640]create socket success, _listensock: 3
+[NORMAL] [1689080640]create new link success, sock: 4
+[NORMAL] [1689080646]{"op":43,"x":1,"y":2}
+
+[NORMAL] [1689080655]{"op":42,"x":59,"y":4}
+
+[NORMAL] [1689080687]{"op":45,"x":84,"y":14}
+

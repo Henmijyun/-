@@ -5,10 +5,10 @@
 all:CalClient CalServer
 
 CalClient:CalClient.cc 
-	g++ -std=c++11 CalClient.cc -o CalClient #-lpthread
+	g++ -std=c++11 CalClient.cc -o CalClient -ljsoncpp #-lpthread
 
 CalServer:CalServer.cc 
-	g++ -std=c++11 CalServer.cc -o CalServer -lpthread
+	g++ -std=c++11 CalServer.cc -o CalServer -ljsoncpp -lpthread
 
 .PHONY:clean
 clean:

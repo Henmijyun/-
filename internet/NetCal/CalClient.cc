@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 
         // 2.序列化
         std::string s = req.Serialize();  // 序列化
-        std::string temp = s;
+        // std::string temp = s;
         
         // 3.添加长度报头
         s = Encode(s);
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
                 err = "非法操作"; 
                 break;
             default:
-                std::cout << temp << " = " << resp._result << " [success]" << std::endl;                
+                std::cout << resp._x << (char)resp._op << resp._y << " = " << resp._result << " [success]" << std::endl;                
                 break;            
             }
 
