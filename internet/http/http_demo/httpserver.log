@@ -1,0 +1,12 @@
+[NORMAL] [1689241940]create socket success, _listensock: 3
+[NORMAL] [1689241940]init server success
+[NORMAL] [1689242480]create socket success, _listensock: 3
+[FATAL] [1689242480]bind error, 98:Address already in use
+[NORMAL] [1689242481]create socket success, _listensock: 3
+[FATAL] [1689242481]bind error, 98:Address already in use
+[NORMAL] [1689242482]create socket success, _listensock: 3
+[FATAL] [1689242482]bind error, 98:Address already in use
+[NORMAL] [1689242485]create socket success, _listensock: 3
+[FATAL] [1689242485]bind error, 98:Address already in use
+[NORMAL] [1689242488]create socket success, _listensock: 3
+[NORMAL] [1689242488]init server success
