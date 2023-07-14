@@ -10,3 +10,53 @@
 [FATAL] [1689242485]bind error, 98:Address already in use
 [NORMAL] [1689242488]create socket success, _listensock: 3
 [NORMAL] [1689242488]init server success
+[NORMAL] [1689336197]create socket success, _listensock: 3
+[NORMAL] [1689336197]init server success
+[NORMAL] [1689337027]create socket success, _listensock: 3
+[FATAL] [1689337027]bind error, 98:Address already in use
+[NORMAL] [1689337028]create socket success, _listensock: 3
+[FATAL] [1689337028]bind error, 98:Address already in use
+[NORMAL] [1689337033]create socket success, _listensock: 3
+[FATAL] [1689337033]bind error, 98:Address already in use
+[NORMAL] [1689337036]create socket success, _listensock: 3
+[FATAL] [1689337036]bind error, 98:Address already in use
+[NORMAL] [1689337037]create socket success, _listensock: 3
+[FATAL] [1689337037]bind error, 98:Address already in use
+[NORMAL] [1689337038]create socket success, _listensock: 3
+[FATAL] [1689337038]bind error, 98:Address already in use
+[NORMAL] [1689337039]create socket success, _listensock: 3
+[FATAL] [1689337039]bind error, 98:Address already in use
+[NORMAL] [1689337047]create socket success, _listensock: 3
+[FATAL] [1689337047]bind error, 98:Address already in use
+[NORMAL] [1689337048]create socket success, _listensock: 3
+[FATAL] [1689337048]bind error, 98:Address already in use
+[NORMAL] [1689337057]create socket success, _listensock: 3
+[FATAL] [1689337057]bind error, 98:Address already in use
+[NORMAL] [1689337058]create socket success, _listensock: 3
+[FATAL] [1689337058]bind error, 98:Address already in use
+[NORMAL] [1689337059]create socket success, _listensock: 3
+[FATAL] [1689337059]bind error, 98:Address already in use
+[NORMAL] [1689337069]create socket success, _listensock: 3
+[FATAL] [1689337069]bind error, 98:Address already in use
+[NORMAL] [1689337070]create socket success, _listensock: 3
+[FATAL] [1689337070]bind error, 98:Address already in use
+[NORMAL] [1689337070]create socket success, _listensock: 3
+[FATAL] [1689337070]bind error, 98:Address already in use
+[NORMAL] [1689337071]create socket success, _listensock: 3
+[FATAL] [1689337071]bind error, 98:Address already in use
+[NORMAL] [1689337083]create socket success, _listensock: 3
+[FATAL] [1689337083]bind error, 98:Address already in use
+[NORMAL] [1689337084]create socket success, _listensock: 3
+[FATAL] [1689337084]bind error, 98:Address already in use
+[NORMAL] [1689337085]create socket success, _listensock: 3
+[FATAL] [1689337085]bind error, 98:Address already in use
+[NORMAL] [1689337086]create socket success, _listensock: 3
+[FATAL] [1689337086]bind error, 98:Address already in use
+[NORMAL] [1689337116]create socket success, _listensock: 3
+[NORMAL] [1689337116]init server success
+[NORMAL] [1689337781]create socket success, _listensock: 3
+[NORMAL] [1689337781]init server success
+[NORMAL] [1689338417]create socket success, _listensock: 3
+[NORMAL] [1689338417]init server success
+[NORMAL] [1689343616]create socket success, _listensock: 3
+[NORMAL] [1689343616]init server success

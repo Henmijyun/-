@@ -84,11 +84,16 @@ void HandlerHttpRequest(int sockfd)
 	std::string HttpResponse;
 	if (content.empty())
 	{
-		HttpResponse = "HTTP/1.1 404 NotFound\r\n";  // 状态行
+		// HttpResponse = "HTTP/1.1 404 NotFound\r\n";  // 状态行
+		HttpResponse = "HTTP/1.1 302 Found\r\n";   // 302临时跳转
+		HttpResponse += "Location: http://52.68.195.117:8080/a/404.html\r\n";  // 跳转的网站
 	}
 	else
 	{
 		HttpResponse = "HTTP/1.1 200 OK\r\n";  // 状态行
+		HttpResponse += "Content-Type: text/html\r\n";   // 请求数据类型 （参考对照表）
+		HttpResponse += ("Content-Length: " + std::to_string(content.size()) + "\r\n");  // 正文长度的属性
+		HttpResponse += "Set-Cookie: 这是一个cookie\r\n";  // cookie	
 	}
 	// 现代的浏览器很强，会给缺失的报头属性进行识别补充
 	// 只是为了test可以不写
