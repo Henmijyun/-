@@ -46,6 +46,10 @@ public:
 
         logMessage(NORMAL, "create socket success, _listensock: %d", listensock);   // 查看套接字  默认3
 
+        // 地址复用，让对应的port、ip 在TIME_WAIT状态时，也可以立马重新启动
+        int opt = 1;
+        setsockopt(listensock, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+
         return listensock;
     }
 

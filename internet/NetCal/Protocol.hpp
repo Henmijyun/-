@@ -4,6 +4,9 @@
 
 #include <iostream>
 #include <cstring>
+#include <sys/types.h>
+#include <sys/socket.h>
+
 #include <jsoncpp/json/json.h>
 
 
@@ -17,7 +20,7 @@ namespace skk_protocol
 #define SEP "\r\n"
 #define SEP_LEN strlen(SEP)   // 不能是sizeof！(不包含\0) 
 
-    // 请求
+    // 请求  client -> server
     class Request
     {
     public:
@@ -113,7 +116,7 @@ namespace skk_protocol
 
 
 
-    // 回复/响应
+    // 响应 server -> client
     class Response
     {
     public:
