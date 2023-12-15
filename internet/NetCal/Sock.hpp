@@ -28,6 +28,7 @@
 class Sock
 {
 public:
+    // listen的第二个参数，意义：OS底层全连接队列的长度 = listen的第二个参数+1
     const static int gbacklog = 20; 
 
 public:
