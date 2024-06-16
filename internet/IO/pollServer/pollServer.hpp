@@ -37,7 +37,7 @@ public:
             _fds[i].events = _fds[i].revents = 0;
         }
         _fds[0].fd = _listensock;
-        _fds[0].events = POLLIN;  //位图
+        _fds[0].events = POLLIN;  //位图   读 POLLIN | POLLOUT  写
 
         _timeout = 1000;
     }
