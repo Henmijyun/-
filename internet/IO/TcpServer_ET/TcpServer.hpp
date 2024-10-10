@@ -96,8 +96,55 @@ public:
     // 读方法
     void Accepter(Connection *conn)
     {
-        logMessage(DEBUG, "Accepter been calied");
+        // logMessage(DEBUG, "Accepter been calied");
+        // 一定有listensock已经就绪，此次读取不会阻塞
+        // 因为可能会有多个，所以必须循环去读
+        while (true)
+        {
+            std::string client_ip;
+            uint16_t client_port;
+            int accept_errno = 0;
+            int sock = Sock::Accept(conn->_sock, &client_ip, &client_port, &accept_errno);
+            if (sock < 0)
+            {
+                // 循环读，直到读取失败
+                if (accept_errno == EAGAIN || accept_errno == EWOULDBLOCK) 
+                    break;
+                else if (accept_errno == EINTR)
+                    continue; 
+                else
+                {
+                    // accept失败
+                    logMessage(WARNING, "accept error, %d : %s", accept_errno, strerror(accept_errno));
+                    break;
+                } 
+            }
+            // 获取链接成功, 将sock托管给TcpServer
+            if (sock >= 0)
+            {
+                AddConnection(sock, std::bind(&TcpServer::Recver, this, std::placeholders::_1),\
+                                std::bind(&TcpServer::Sender, this, std::placeholders::_1),\
+                                std::bind(&TcpServer::Excepter, this, std::placeholders::_1));
+                logMessage(DEBUG, "accept client %s:%d success, add to epoll&&TcpServer success! sock: %d"\
+                            , client_ip.c_str(), client_port, sock);
+            }
+            
+        }
     }
+
+    // 从网络的数据读出来，放到输入缓冲区当中
+    void Recver(Connection *conn)
+    {
+        logMessage(DEBUG, "Recver event exists, Recver() been called");
+    }
+
+    // 把输出缓冲区的数据发送到网络
+    void Sender(Connection *conn)
+    {}
+
+    // 读写异常/链接异常 处理
+    void Excepter(Connection *conn)
+    {}
 
     // 一次执行，派发事件
     void LoopOne()

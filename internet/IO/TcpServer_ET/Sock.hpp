@@ -82,13 +82,15 @@ public:
     // const std::string&  输入型参数
     // std::string*   输出型参数
     // std::string&   输入输出型参数
-    static int Accept(int listensock, std::string* ip, uint16_t* port)
+    static int Accept(int listensock, std::string* ip, uint16_t* port, int *accept_errno)
     {
         struct sockaddr_in src;
         socklen_t len = sizeof(src);
+        *accept_errno = 0;
         int servicesock = accept(listensock, (struct sockaddr*)&src, &len);  // 获取链接（获取服务套接字）
         if (servicesock < 0)
         {
+            *accept_errno = errno;
             return -1;
         }
 
