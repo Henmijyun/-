@@ -135,7 +135,12 @@ public:
     // 从网络的数据读出来，放到输入缓冲区当中
     void Recver(Connection *conn)
     {
-        logMessage(DEBUG, "Recver event exists, Recver() been called");
+        // logMessage(DEBUG, "Recver event exists, Recver() been called");
+        // 直接面向字节流，先进行常规读取
+        while (true)
+        {
+
+        }
     }
 
     // 把输出缓冲区的数据发送到网络
