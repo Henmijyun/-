@@ -25,6 +25,24 @@ public:
         
     }
 
+    // 删除epoll
+    bool DelFromEpoll(int sock)
+    {
+        int n = epoll_ctl(_epfd, EPOLL_CTL_DEL, sock, nullptr);
+        return n == 0;
+    }
+
+    // 修改Epoll状态
+    bool CtrlEpoll(int sock, uint32_t events)
+    {
+        events |= EPOLLET;
+        struct epoll_event ev;
+        ev.events = events;
+        ev.data.fd = sock;
+        int n = epoll_ctl(_epfd, EPOLL_CTL_MOD, sock, &ev);
+        return n == 0;
+    }
+
     // 添加sock到epoll
     bool addSockToEpoll(int sock, uint32_t events)
     {
